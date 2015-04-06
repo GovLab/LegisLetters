@@ -4,9 +4,13 @@ Coding space for the LegisLetters project.
 
 ### Installation
 
-`virtualenv` preferred.
+Docker preferred.
 
-    pip install -r requirements.txt
+    ./build.sh
+    ./run.sh
+    ./exec.sh
+
+You will then be able to run all relevant scripts
 
 ### Usage
 

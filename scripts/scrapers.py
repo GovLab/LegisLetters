@@ -8,6 +8,7 @@ import logging
 import sys
 import re
 import traceback
+import json
 from bs4 import BeautifulSoup
 
 LOGGER = logging.getLogger(__name__)
@@ -52,25 +53,69 @@ QUERY = "\"the full text of the letter is below\""
 SITE = "senate.gov"
 START = 0
 DATA = []
+RECIPIENTS, TEXT, SIGNATURES, ATTACHMENTS = ('recipients', 'text',
+                                             'signatures', 'attachments')
+
+
+def els2text(els):
+    '''
+    Convert a series BeautifulSoup elements to plaintext
+    '''
+    arr = []
+    for element in els:
+        if hasattr(element, 'text'):
+            arr.append(element.text)
+    return u'\n'.join(arr)
 
 
 def process_letter(url):
     '''
     load and process a letter from its url
+
+    returns None if the letter can't be processed.
     '''
     matcher = re.compile('full text of the letter', re.IGNORECASE)
     letter_page = fetch_page(url).read()
     letter_soup = BeautifulSoup(letter_page)
-    text = [k for k in letter_soup.findAll(text=matcher)][0]
-    acc = []
-    for item in text.findAllNext():
-        if item.name == "footer" or \
-           (item.name == 'div' and 'class' in item and item['class'] == 'footer'):
-            break
-        acc.append(item.text)
-    acc = [x.replace('&nbsp;', ' ').strip() for x in acc]
-    acc = [k for k in acc if k != '']
-    return "\n".join(acc)
+    matching_text = letter_soup.find(text=matcher)
+
+    if not matching_text:
+        return
+
+    fulltext_el = matching_text.parent
+    enclosing_el = fulltext_el.parent
+
+    press_release = els2text(fulltext_el.previous_siblings)
+    full_letter_plus_attachments = fulltext_el.next_siblings
+
+    sections = {
+        RECIPIENTS: [],
+        TEXT: [],
+        SIGNATURES: [],
+        ATTACHMENTS: []
+    }
+    cur_section = RECIPIENTS
+
+    for element in full_letter_plus_attachments:
+        if not hasattr(element, 'text'):
+            continue
+
+        sections[cur_section].append(element)
+
+        if cur_section == RECIPIENTS and 'dear' in element.text.lower():
+            cur_section = TEXT
+        elif cur_section == TEXT and 'sincerely' in element.text.lower():
+            cur_section = SIGNATURES
+
+    return {
+        u'url': url,
+        u'originalHTML': unicode(enclosing_el),
+        u'pressReleaseText': press_release,
+        u'recipients': els2text(sections[RECIPIENTS]),
+        u'text': els2text(sections[TEXT]),
+        u'signatures': els2text(sections[SIGNATURES]),
+        u'attachments': els2text(sections[ATTACHMENTS])
+    }
 
 
 if __name__ == '__main__':
@@ -81,9 +126,8 @@ if __name__ == '__main__':
     #with codecs.open('out.txt', 'w+', 'utf-8') as f:
     for p in DATA:
         try:
-            sys.stdout.write(p)
+            sys.stdout.write(json.dumps(process_letter(p), indent=2))
             sys.stdout.write(u'\n')
-            sys.stdout.write(process_letter(p))
             LOGGER.info("++OK: %s", p)
         except Exception as err:  #pylint: disable=broad-except
             traceback.print_exc(err)
