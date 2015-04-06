@@ -8,7 +8,6 @@ import logging
 import sys
 import re
 import traceback
-#import codecs
 from bs4 import BeautifulSoup
 
 LOGGER = logging.getLogger(__name__)
@@ -62,7 +61,6 @@ def process_letter(url):
     matcher = re.compile('full text of the letter', re.IGNORECASE)
     letter_page = fetch_page(url).read()
     letter_soup = BeautifulSoup(letter_page)
-    #text = [k for k in letter_soup.findAll(text='The full text of the letter is below:')][0]
     text = [k for k in letter_soup.findAll(text=matcher)][0]
     acc = []
     for item in text.findAllNext():
@@ -70,7 +68,6 @@ def process_letter(url):
            (item.name == 'div' and 'class' in item and item['class'] == 'footer'):
             break
         acc.append(item.text)
-    #acc = map(lambda x: x.replace('&nbsp;', ' ').strip(), acc)  #pylint: disable=bad-builtin
     acc = [x.replace('&nbsp;', ' ').strip() for x in acc]
     acc = [k for k in acc if k != '']
     return "\n".join(acc)
@@ -84,17 +81,11 @@ if __name__ == '__main__':
     #with codecs.open('out.txt', 'w+', 'utf-8') as f:
     for p in DATA:
         try:
-            #f = codecs.open('%s/letters/%s.txt'
-            #% ('/Users/sahuguet/Documents/Notebooks', p.split('/')[-1]), 'w+',
-            #'utf-8')
             sys.stdout.write(p)
             sys.stdout.write(u'\n')
             sys.stdout.write(process_letter(p))
-            #print process_letter(p)
             LOGGER.info("++OK: %s", p)
         except Exception as err:  #pylint: disable=broad-except
-            #import pdb
-            #pdb.set_trace()
             traceback.print_exc(err)
             LOGGER.error("--ERR: %s (%s)", p, err)
         sys.stdout.flush()
