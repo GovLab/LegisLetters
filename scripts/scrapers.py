@@ -7,8 +7,9 @@ import logging
 import sys
 import re
 import traceback
-import json
+#import json
 import requests
+from elasticsearch import Elasticsearch
 from bs4 import BeautifulSoup
 
 LOGGER = logging.getLogger(__name__)
@@ -25,6 +26,8 @@ REQUEST_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.19) '
                   'Gecko/20081202 Firefox (Debian-2.0.0.19-0etch1)'
 }
+ES_INDEX_NAME = 'legisletters'
+ES_LETTER_DOC_TYPE = 'letter'
 
 
 def fetch_page(url):
@@ -120,15 +123,19 @@ def process_letter(url):
 
 if __name__ == '__main__':
 
+    ES = Elasticsearch()
+    ES.indices.create(index=ES_INDEX_NAME, ignore=400) #pylint: disable=unexpected-keyword-arg
+
     for i in range(0, 1):
         DATA.extend(scrape_google(QUERY, SITE, int(10*i)))
 
-    for p in DATA:
+    for i, p in enumerate(DATA):
         try:
-            sys.stdout.write(json.dumps(process_letter(p), indent=2))
-            sys.stdout.write(u'\n')
+            ES.index(index=ES_INDEX_NAME,
+                     doc_type=ES_LETTER_DOC_TYPE,
+                     id=i,
+                     body=process_letter(p))
             LOGGER.info("++OK: %s", p)
         except Exception as err:  #pylint: disable=broad-except
             traceback.print_exc(err)
             LOGGER.error("--ERR: %s (%s)", p, err)
-        sys.stdout.flush()

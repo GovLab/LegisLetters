@@ -14,10 +14,9 @@ You will then be able to run all relevant scripts
 
 ### Usage
 
-For now, output is piped through stdout, and log messages through stderr.  Make
-sure to set python's encoding.
+Inside the docker container, this will add to the Elasticsearch database:
 
-    PYTHONIOENCODING=utf_8 python scrapers.py > out.txt
+    python scrapers.py
 
 ### Contributions
 
