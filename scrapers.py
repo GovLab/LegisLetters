@@ -4,9 +4,12 @@ docstring
 
 import urllib2
 import urllib
-from bs4 import BeautifulSoup
 import logging
 import sys
+import re
+import traceback
+#import codecs
+from bs4 import BeautifulSoup
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
@@ -42,9 +45,9 @@ def scrape_google(query, site, start=0):
 
 def process_url_from_google(url):
     '''
-    ?
+    Extract actual URL from the google forwarding link
     '''
-    return url[7:].split('&')[0]
+    return urllib.unquote(url[7:].split('&')[0])
 
 QUERY = "\"the full text of the letter is below\""
 SITE = "senate.gov"
@@ -56,9 +59,11 @@ def process_letter(url):
     '''
     load and process a letter from its url
     '''
+    matcher = re.compile('full text of the letter', re.IGNORECASE)
     letter_page = fetch_page(url).read()
     letter_soup = BeautifulSoup(letter_page)
-    text = [k for k in letter_soup.findAll(text='The full text of the letter is below:')][0]
+    #text = [k for k in letter_soup.findAll(text='The full text of the letter is below:')][0]
+    text = [k for k in letter_soup.findAll(text=matcher)][0]
     acc = []
     for item in text.findAllNext():
         if item.name == "footer" or \
@@ -73,21 +78,23 @@ def process_letter(url):
 
 if __name__ == '__main__':
 
-    import codecs
-    for i in range(0, 10):
+    for i in range(0, 1):
         DATA.extend(scrape_google(QUERY, SITE, int(10*i)))
 
+    #with codecs.open('out.txt', 'w+', 'utf-8') as f:
     for p in DATA:
         try:
             #f = codecs.open('%s/letters/%s.txt'
             #% ('/Users/sahuguet/Documents/Notebooks', p.split('/')[-1]), 'w+',
             #'utf-8')
-            f = codecs.open('out.txt', 'w+', 'utf-8')
-            f.write(p)
-            f.write('\n')
-            f.write(process_letter(p))
-            f.close()
+            sys.stdout.write(p)
+            sys.stdout.write(u'\n')
+            sys.stdout.write(process_letter(p))
+            #print process_letter(p)
             LOGGER.info("++OK: %s", p)
         except Exception as err:  #pylint: disable=broad-except
+            #import pdb
+            #pdb.set_trace()
+            traceback.print_exc(err)
             LOGGER.error("--ERR: %s (%s)", p, err)
         sys.stdout.flush()
