@@ -2,29 +2,42 @@
 docstring
 '''
 
-import urllib2
 import urllib
 import logging
 import sys
 import re
 import traceback
 import json
+import requests
 from bs4 import BeautifulSoup
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
 LOGGER.addHandler(logging.StreamHandler(sys.stderr))
 
+QUERY = "\"the full text of the letter is below\""
+SITE = "senate.gov"
+START = 0
+DATA = []
+RECIPIENTS, TEXT, SIGNATURES, ATTACHMENTS = ('recipients', 'text',
+                                             'signatures', 'attachments')
+REQUEST_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.19) '
+                  'Gecko/20081202 Firefox (Debian-2.0.0.19-0etch1)'
+}
+
+
 def fetch_page(url):
     '''
-    get page with urllib2, return text response
+    get page with requests, return text response
     '''
-    request = urllib2.Request(url)
-    request.add_header('User-Agent',
-                       'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.19) '
-                       'Gecko/20081202 Firefox (Debian-2.0.0.19-0etch1)')
-    opener = urllib2.build_opener(urllib2.HTTPRedirectHandler())
-    return opener.open(request)
+    #request = urllib2.Request(url)
+    #request.add_header('User-Agent',
+    #                   'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.19) '
+    #                   'Gecko/20081202 Firefox (Debian-2.0.0.19-0etch1)')
+    #opener = urllib2.build_opener(urllib2.HTTPRedirectHandler())
+    #return opener.open(request)
+    return requests.get(url, headers=REQUEST_HEADERS).text
 
 
 def scrape_google(query, site, start=0):
@@ -49,13 +62,6 @@ def process_url_from_google(url):
     '''
     return urllib.unquote(url[7:].split('&')[0])
 
-QUERY = "\"the full text of the letter is below\""
-SITE = "senate.gov"
-START = 0
-DATA = []
-RECIPIENTS, TEXT, SIGNATURES, ATTACHMENTS = ('recipients', 'text',
-                                             'signatures', 'attachments')
-
 
 def els2text(els):
     '''
@@ -75,7 +81,7 @@ def process_letter(url):
     returns None if the letter can't be processed.
     '''
     matcher = re.compile('full text of the letter', re.IGNORECASE)
-    letter_page = fetch_page(url).read()
+    letter_page = fetch_page(url)
     letter_soup = BeautifulSoup(letter_page)
     matching_text = letter_soup.find(text=matcher)
 
