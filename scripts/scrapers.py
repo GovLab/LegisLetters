@@ -1,5 +1,5 @@
 '''
-docstring
+legisletters: collect, archive, and make searchable legislators' letters
 '''
 
 import urllib
@@ -31,12 +31,6 @@ def fetch_page(url):
     '''
     get page with requests, return text response
     '''
-    #request = urllib2.Request(url)
-    #request.add_header('User-Agent',
-    #                   'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.1.19) '
-    #                   'Gecko/20081202 Firefox (Debian-2.0.0.19-0etch1)')
-    #opener = urllib2.build_opener(urllib2.HTTPRedirectHandler())
-    #return opener.open(request)
     return requests.get(url, headers=REQUEST_HEADERS).text
 
 
@@ -129,7 +123,6 @@ if __name__ == '__main__':
     for i in range(0, 1):
         DATA.extend(scrape_google(QUERY, SITE, int(10*i)))
 
-    #with codecs.open('out.txt', 'w+', 'utf-8') as f:
     for p in DATA:
         try:
             sys.stdout.write(json.dumps(process_letter(p), indent=2))
