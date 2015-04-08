@@ -31,8 +31,11 @@
   <section class='results'>
     <p class='no-results' ng-show='!results.length && !loading'>No Results</p>
     <article class='result' ng-repeat='result in results track by $id(result)'>
-      <h2>{{result.name}}</h2>
-      <p>{{result.description}}</p>
+      <!--<h2>{{result.url}}</h2>-->
+      <p><a href="{{result.url}}">(original)</a></p>
+      <p><b>recipients:</b> {{result.recipients}}</p>
+      <p><b>signatures:</b> {{result.signatures}}</p>
+      <p><b>text:</b> {{result.text}}</p>
     </article>
   </section>
   <section class='pagination-controls'>

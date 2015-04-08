@@ -15,7 +15,8 @@
     "tests"
   ],
   "dependencies": {
-    "calaca": "^1.1.1"
+    "calaca": "^1.1.1",
+    "markdown": "^0.5.0"
   }
 }
 
