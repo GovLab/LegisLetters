@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     ES = get_index(ES_INDEX_NAME, LOGGER)
 
-    for i in range(0, 5):
+    for i in range(0, 50):
         DATA.extend(scrape_google('"{}"'.format(LETTER_IDENTIFIERS[0]), SITE, int(10*i)))
 
     for i, u in enumerate(DATA):
