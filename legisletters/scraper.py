@@ -15,7 +15,6 @@ LOGGER = get_logger(__name__)
 
 SITE = "senate.gov"
 START = 0
-DATA = []
 
 
 def scrape_google(query, site, start=0):
@@ -71,31 +70,31 @@ if __name__ == '__main__':
 
     ES = get_index(ES_INDEX_NAME, LOGGER)
 
-    for i in range(0, 50):
-        DATA.extend(scrape_google('"{}"'.format(LETTER_IDENTIFIERS[0]), SITE, int(10*i)))
+    for letter_identifier in LETTER_IDENTIFIERS:
+        for i in range(0, 50):
+            for u in scrape_google('"{}"'.format(letter_identifier), SITE, int(10*i)):
+                try:
+                    resp = fetch_page(u)
+                    if 'html' not in resp.headers['content-type']:
+                        raise Exception("Not HTML (content type {})".format(
+                            resp.headers['content-type']))
 
-    for i, u in enumerate(DATA):
-        try:
-            resp = fetch_page(u)
-            if 'html' not in resp.headers['content-type']:
-                raise Exception("Not HTML (content type {})".format(resp.headers['content-type']))
+                    original_html, text_identifier = extract_text_from_letter(resp.text)
 
-            original_html, text_identifier = extract_text_from_letter(resp.text)
+                    scrape_time = datetime.datetime.now()
 
-            scrape_time = datetime.datetime.now()
+                    doc_id = get_document_id(u, original_html.encode('utf8'))
 
-            doc_id = get_document_id(u, original_html.encode('utf8'))
-
-            ES.index(index=ES_INDEX_NAME,
-                     doc_type=ES_LETTER_DOC_TYPE,
-                     id=doc_id,
-                     body={
-                         'url': u,
-                         'html': original_html,
-                         'identifier': text_identifier,
-                         'scrapeTime': scrape_time
-                     })
-            LOGGER.info("++OK: %s", u)
-        except Exception as err:  #pylint: disable=broad-except
-            traceback.print_exc(err)
-            LOGGER.error("--ERR: %s (%s)", u, err)
+                    ES.index(index=ES_INDEX_NAME,
+                             doc_type=ES_LETTER_DOC_TYPE,
+                             id=doc_id,
+                             body={
+                                 'url': u,
+                                 'html': original_html,
+                                 'identifier': text_identifier,
+                                 'scrapeTime': scrape_time
+                             })
+                    LOGGER.info("++OK: %s", u)
+                except Exception as err:  #pylint: disable=broad-except
+                    traceback.print_exc(err)
+                    LOGGER.error("--ERR: %s (%s)", u, err)

@@ -33,6 +33,8 @@
     <article class='result' ng-repeat='result in results track by $id(result)'>
       <!--<h2>{{result.url}}</h2>-->
       <p><a href="{{result.url}}">(original)</a></p>
+      <p><b>press date:</b> {{result.pressDate}}</p>
+      <p><b>letter date:</b> {{result.letterDate}}</p>
       <p><b>recipients:</b> {{result.recipients}}</p>
       <p><b>signatures:</b> {{result.signatures}}</p>
       <p><b>text:</b> {{result.text}}</p>

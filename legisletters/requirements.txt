@@ -2,3 +2,4 @@ BeautifulSoup4
 pylint
 elasticsearch
 requests
+python-dateutil

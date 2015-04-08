@@ -6,6 +6,7 @@ import re
 import traceback
 
 from bs4 import BeautifulSoup
+from dateutil import parser
 
 from legisletters.constants import ES_INDEX_NAME
 from legisletters.utils import els2text, get_logger, get_index
@@ -38,6 +39,15 @@ def process_letter(text, identifier, doc_id):
         enclosing_el = enclosing_el.parent
 
     press_release = els2text(enclosing_el.previous_siblings)
+    press_date = None
+    for element in enclosing_el.previous_siblings:
+        if hasattr(element, 'get_text'):
+            try:
+                press_date = parser.parse(element.get_text())
+                break
+            except ValueError:
+                pass
+
     full_letter_plus_attachments = enclosing_el.next_siblings
 
     sections = {
@@ -48,9 +58,18 @@ def process_letter(text, identifier, doc_id):
     }
     cur_section = RECIPIENTS
 
+    letter_date = None
     for element in full_letter_plus_attachments:
         if not hasattr(element, 'get_text'):
             continue
+
+        # Take the first parseable date as the letter date.
+        if not letter_date:
+            try:
+                letter_date = parser.parse(element.get_text())
+                continue
+            except ValueError:
+                pass
 
         sections[cur_section].append(element)
 
@@ -68,6 +87,8 @@ def process_letter(text, identifier, doc_id):
         u'recipients': els2text(sections[RECIPIENTS]),
         u'text': els2text(sections[TEXT]),
         u'signatures': els2text(sections[SIGNATURES]),
+        u'letterDate': letter_date,
+        u'pressDate': press_date,
         #u'attachments': els2text(sections[ATTACHMENTS])
     }
 

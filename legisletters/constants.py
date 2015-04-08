@@ -9,7 +9,6 @@ REQUEST_HEADERS = {
                   'Gecko/20081202 Firefox (Debian-2.0.0.19-0etch1)'
 }
 LETTER_IDENTIFIERS = [
-    'full text of the letter is below',
     'full text of the letter',
     'full text is below',
     'text of the full letter'
