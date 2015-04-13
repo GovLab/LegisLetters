@@ -15,7 +15,6 @@ module.exports = function(grunt) {
     concat: {
       all: {
         files: {
-          'dist/css/legisletters.css': ['bower_components/calaca/css/*'],
           'dist/js/legisletters.js': [
             'bower_components/markdown/lib/markdown.js',
             'bower_components/angular/angular.min.js',
@@ -25,10 +24,19 @@ module.exports = function(grunt) {
           ]
         }
       }
+    },
+    copy: {
+      all: {
+        cwd: 'src',
+        src: '**',
+        dest: 'dist',
+        expand: true
+      }
     }
   });
   //grunt.loadNpmTasks('grunt-bower-concat');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-copy');
 
-  grunt.registerTask('default', ['concat']);
+  grunt.registerTask('default', ['copy', 'concat']);
 };

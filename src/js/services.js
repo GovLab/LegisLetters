@@ -1,6 +1,6 @@
 /*
- * Calaca - Search UI for Elasticsearch
- * https://github.com/romansanchez/Calaca
+ * LegisLetters - Search UI for Elasticsearch
+ * https://github.com/romansanchez/LegisLetters
  * http://romansanchez.me
  * @rooomansanchez
  * 
@@ -8,14 +8,21 @@
  * MIT License
  */
 
+/*jslint browser: true, plusplus: true*/
+/*globals LegisLetters, indexName, docType, maxResultsSize, host, port,
+protocol*/
+
 /* Service to Elasticsearch */
-Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function($q, elasticsearch, $location){
+LegisLetters.factory('legislettersService', ['$q', 'esFactory', '$location',
+                     function($q, elasticsearch, $location){
 
     //Set defaults if host and port aren't configured
     var esHost = (host.length > 0 ) ? host : $location.host();
     var esProtocol = (protocol.length > 0 ) ? protocol : $location.protocol();
 
-    var client = elasticsearch({ host: esProtocol + '://' + esHost + ":" + port });
+    var client = elasticsearch({
+      host: esProtocol + '://' + esHost + ":" + port
+    });
 
     var search = function(query, mode, offset){
 
@@ -39,7 +46,11 @@ Calaca.factory('calacaService', ['$q', 'esFactory', '$location', function($q, el
                 for(;i < hitsIn.length; i++){
                     hitsOut.push(hitsIn[i]._source);
                 }
-                deferred.resolve({ timeTook: result.took, hitsCount: result.hits.total, hits: hitsOut });
+                deferred.resolve({
+                  timeTook: result.took,
+                  hitsCount: result.hits.total,
+                  hits: hitsOut
+                });
         }, deferred.reject);
 
         return deferred.promise;

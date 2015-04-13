@@ -1,6 +1,6 @@
 /*
- * Calaca - Search UI for Elasticsearch
- * https://github.com/romansanchez/Calaca
+ * LegisLetters - Search UI for Elasticsearch
+ * https://github.com/romansanchez/LegisLetters
  * http://romansanchez.me
  * @rooomansanchez
  * 
@@ -8,8 +8,12 @@
  * MIT License
  */
 
+/*jslint browser: true*/
+/*globals angular*/
+
 /* Module */
-window.Calaca = angular.module('calaca', ['elasticsearch', 'ngAnimate'],
+window.LegisLetters = angular.module('legisletters',
+                                     ['elasticsearch', 'ngAnimate'],
     ['$locationProvider', function($locationProvider){
         $locationProvider.html5Mode(true);
     }]

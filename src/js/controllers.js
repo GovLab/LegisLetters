@@ -1,6 +1,6 @@
 /*
- * Calaca - Search UI for Elasticsearch
- * https://github.com/romansanchez/Calaca
+ * LegisLetters - Search UI for Elasticsearch
+ * https://github.com/romansanchez/LegisLetters
  * http://romansanchez.me
  * @rooomansanchez
  * 
@@ -8,12 +8,18 @@
  * MIT License
  */
 
-/* Calaca Controller
+/*jslint browser: true, plusplus: true, maxstatements: false*/
+/*globals LegisLetters, maxResultsSize */
+
+/* LegisLetters Controller
  *
- * On change in search box, search() will be called, and results are bind to scope as results[]
+ * On change in search box, search() will be called, and results are bind to
+ * scope as results[]
  *
 */
-Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', function(results, $scope, $location){
+LegisLetters.controller('legislettersCtrl',
+                        ['legislettersService', '$scope', '$location',
+                          function(results, $scope /*, $location*/){
 
         //Init empty array
         $scope.results = [];
@@ -26,17 +32,24 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
         //On search, reinitialize array, then perform search and load results
         $scope.search = function(m){
             $scope.results = [];
-            $scope.offset = m == 0 ? 0 : $scope.offset;//Clear offset if new query
-            $scope.loading = m == 0 ? false : true;//Reset loading flag if new query
 
-            if(m == -1 && paginationTriggered) {
-                if ($scope.offset - maxResultsSize >= 0 ) $scope.offset -= maxResultsSize;
-            }     
-            if(m == 1 && paginationTriggered) {
+            //Clear offset if new query
+            $scope.offset = m === 0 ? 0 : $scope.offset;
+
+            //Reset loading flag if new query
+            $scope.loading = m === 0 ? false : true;
+
+            if(m === -1 && paginationTriggered) {
+                if ($scope.offset - maxResultsSize >= 0 ) {
+                    $scope.offset -= maxResultsSize;
+                }
+            }
+            if(m === 1 && paginationTriggered) {
                 $scope.offset += maxResultsSize;
             }
             $scope.paginationLowerBound = $scope.offset + 1;
-            $scope.paginationUpperBound = ($scope.offset == 0) ? maxResultsSize : $scope.offset + maxResultsSize;
+            $scope.paginationUpperBound = ($scope.offset === 0) ?
+                maxResultsSize : $scope.offset + maxResultsSize;
             $scope.loadResults(m);
         };
 
@@ -57,10 +70,12 @@ Calaca.controller('calacaCtrl', ['calacaService', '$scope', '$location', functio
                 $scope.hits = a.hitsCount;
 
                 //Pluralization
-                $scope.resultsLabel = ($scope.hits != 1) ? "results" : "result";
+                $scope.resultsLabel = ($scope.hits !== 1) ?
+                    "results" : "result";
 
                 //Check if pagination is triggered
-                paginationTriggered = $scope.hits > maxResultsSize ? true : false;
+                paginationTriggered = $scope.hits > maxResultsSize ?
+                    true : false;
 
                 //Set loading flag if pagination has been triggered
                 if(paginationTriggered) {
