@@ -18,6 +18,18 @@ Inside the docker container, this will add to the Elasticsearch database:
 
     python scrapers.py
 
+### Rebuilding
+
+You'll need `npm`, `bower`, and `grunt` to build.
+
+    npm install -g grunt-cli bower
+    npm install
+    bower install
+    grunt
+
+This will place updated HTML & JS in the `dist` folder, which is served by the
+container `nginx`.
+
 ### Contributions
 
 Please make sure all files pass `pylint` and `pyflakes`.

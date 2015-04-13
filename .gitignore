@@ -5,7 +5,5 @@ bower_components
 out.txt
 out/
 node_modules
-dist/
-config
 esdata
 *.bak
