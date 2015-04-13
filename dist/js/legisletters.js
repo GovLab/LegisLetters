@@ -1,10 +1,3 @@
-var indexName = "legisletters";
-var docType = "letter";
-var maxResultsSize = 10;
-var host = "104.236.234.7"; //Ex: http://ec2-123-aws.com
-var port = 9200;
-var protocol = ""; //Default: same as browser
-
 // Released under MIT license
 // Copyright (c) 2009-2010 Dominic Baggott
 // Copyright (c) 2009-2010 Ash Berlin
@@ -2005,6 +1998,13 @@ window.Calaca = angular.module('calaca', ['elasticsearch', 'ngAnimate'],
         $locationProvider.html5Mode(true);
     }]
 );
+var indexName = "legisletters";
+var docType = "letter";
+var maxResultsSize = 10;
+var host = "104.236.234.7"; //Ex: http://ec2-123-aws.com
+var port = 9200;
+var protocol = ""; //Default: same as browser
+
 /*
  * Calaca - Search UI for Elasticsearch
  * https://github.com/romansanchez/Calaca

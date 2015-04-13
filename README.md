@@ -14,9 +14,14 @@ You will then be able to run all relevant scripts
 
 ### Usage
 
-Inside the docker container, this will add to the Elasticsearch database:
+Inside the docker container, this will add documents to the Elasticsearch
+database:
 
-    python scrapers.py
+    python legisletters/scrapers.py
+
+This will try to parse them into separate fields:
+
+    python legisletters/parser.py
 
 ### Rebuilding
 
