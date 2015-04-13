@@ -28,7 +28,7 @@ module.exports = function(grunt) {
     copy: {
       all: {
         cwd: 'src',
-        src: '**',
+        src: ['css/legisletters.css', 'index.html'],
         dest: 'dist',
         expand: true
       }
