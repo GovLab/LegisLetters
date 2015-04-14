@@ -4,7 +4,7 @@ docker rm -f legisletters || :
 
 docker run \
   -p 9200:9200 \
-  -p 8000:80 \
+  -p 80:80 \
   -e PYTHONPATH=/ \
   -v "${PWD}/dist:/site" \
   -v "${PWD}/legisletters:/legisletters" \
@@ -14,4 +14,3 @@ docker run \
 
 docker exec -d legisletters nginx
 docker exec -d legisletters /docker-entrypoint.sh elasticsearch
-#docker exec legisletters bash -c 'PYTHONPATH=/ python /legisletters/scraper.py'

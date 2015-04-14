@@ -2143,6 +2143,9 @@ LegisLetters.factory('legislettersService', ['$q', 'esFactory', '$location',
                     "query": {
                         "query_string": {
                             "query": query
+                            //, "fields": [
+                            //    "recipients"
+                            //]
                         }
                     }
                 }

@@ -32,11 +32,18 @@ module.exports = function(grunt) {
         dest: 'dist',
         expand: true
       }
+    },
+    watch: {
+      all: {
+        files: 'src/**',
+        tasks: 'default'
+      }
     }
   });
   //grunt.loadNpmTasks('grunt-bower-concat');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.registerTask('default', ['copy', 'concat']);
 };
