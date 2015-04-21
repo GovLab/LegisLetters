@@ -1,0 +1,43 @@
+{
+  "letter" : {
+    "properties" : {
+      "html" : {
+        "type" : "string",
+        "index": "not_analyzed"
+      },
+      "identifier" : {
+        "type" : "string",
+        "index": "not_analyzed"
+      },
+      "letterDate" : {
+        "type" : "date",
+        "format" : "dateOptionalTime"
+      },
+      "pressDate" : {
+        "type" : "date",
+        "format" : "dateOptionalTime"
+      },
+      "pressReleaseText" : {
+        "type" : "string"
+      },
+      "recipients" : {
+        "type" : "string"
+      },
+      "scrapeTime" : {
+        "type" : "date",
+        "format" : "dateOptionalTime"
+      },
+      "signatures" : {
+        "type" : "string"
+      },
+      "text" : {
+        "type" : "string",
+        "analyzer": "letters_text",
+        "include_in_all": false
+      },
+      "url" : {
+        "type" : "string"
+      }
+    }
+  }
+}

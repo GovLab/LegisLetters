@@ -15,10 +15,14 @@
     "tests"
   ],
   "dependencies": {
-    "angular": "1.2.26",
-    "elasticsearch": "~2.2.0",
-    "angular-animate": "1.2.26",
-    "markdown": "^0.5.0"
+    "jquery": "1.10.1",
+    "jquery-ui": "1.10.3",
+    "bootstrap": "2.3.2",
+    "bootstrap-slider": "latest",
+    "moment": "latest",
+    "underscore": "1.4.3",
+    "backbone": "0.9.10",
+    "visualsearch": "latest",
+    "handlebars": "latest"
   }
 }
-

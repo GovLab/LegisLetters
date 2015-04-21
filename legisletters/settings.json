@@ -1,0 +1,25 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "letters_text": {
+          "tokenizer": "standard",
+          "filter": ["letters_common_grams", "letters_text_shingle"]
+        }
+      },
+      "filter": {
+        "letters_common_grams": {
+          "type": "common_grams",
+          "ignore_case": true,
+          "common_words": "_english_"
+        },
+        "letters_text_shingle": {
+          "type": "shingle",
+          "output_unigrams": false,
+          "min_shingle_size": 2,
+          "max_shingle_size": 5
+        }
+      }
+    }
+  }
+}

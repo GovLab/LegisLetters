@@ -3,24 +3,31 @@
 
 module.exports = function(grunt) {
   grunt.initConfig({
-    //bower_concat: {
-    //  all: {
-    //    dest: 'dist/js/calaca.js',
-    //    mainFiles: {
-    //      "calaca": ["js/app.js", "js/controllers.js", "js/services.js"],
-    //      "elasticsearch": ["elasticsearch.angular.js"]
-    //    }
-    //  }
-    //},
+    bower_concat: {
+      all: {
+        dest: 'dist/js/bower_deps.js',
+        dependencies: {
+          "backbone": ["underscore", "jquery"],
+          "bootstrap-slider": ["bootstrap"],
+          "jquery-ui": ["jquery"],
+          "visualsearch": ["backbone", "underscore"]
+        },
+        cssDest: 'dist/css/bower_deps.css',
+        exclude: [
+          "jQuery"
+        ]
+      }
+    },
     concat: {
       all: {
         files: {
           'dist/js/legisletters.js': [
-            'bower_components/markdown/lib/markdown.js',
-            'bower_components/angular/angular.min.js',
-            'bower_components/angular-animate/angular-animate.min.js',
-            'bower_components/elasticsearch/elasticsearch.angular.min.js',
             'src/js/*'
+          ],
+          'dist/css/bower_deps.css': [
+            'dist/css/bower_deps.css',
+            'bower_components/jquery-ui/themes/base/jquery-ui.css',
+            'bower_components/visualsearch/build-min/visualsearch-datauri.css'
           ]
         }
       }
@@ -28,7 +35,7 @@ module.exports = function(grunt) {
     copy: {
       all: {
         cwd: 'src',
-        src: ['css/legisletters.css', 'index.html'],
+        src: ['css/*', 'index.html'],
         dest: 'dist',
         expand: true
       }
@@ -40,10 +47,10 @@ module.exports = function(grunt) {
       }
     }
   });
-  //grunt.loadNpmTasks('grunt-bower-concat');
+  grunt.loadNpmTasks('grunt-bower-concat');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('default', ['copy', 'concat']);
+  grunt.registerTask('default', ['bower_concat', 'copy', 'concat']);
 };

@@ -6,6 +6,7 @@ import urllib
 import traceback
 import datetime
 import re
+import requests
 from bs4 import BeautifulSoup
 
 from legisletters.constants import ES_INDEX_NAME, ES_LETTER_DOC_TYPE, LETTER_IDENTIFIERS
@@ -15,6 +16,7 @@ LOGGER = get_logger(__name__)
 
 SITE = "senate.gov"
 START = 0
+SESSION = requests.session()
 
 
 def scrape_google(query, site, start=0):
@@ -23,10 +25,10 @@ def scrape_google(query, site, start=0):
     '''
     entity = urllib.quote(query)
     site_restrict = urllib.quote('site:%s' % site)
-    url = "http://www.google.com/search?q=%s+%s&start=%d" % (entity, site_restrict, start)
+    url = "https://www.google.com/search?q=%s+%s&start=%d" % (entity, site_restrict, start)
     LOGGER.info("Processing %s", url)
     results = []
-    response = fetch_page(url)
+    response = fetch_page(url, session=SESSION)
     soup = BeautifulSoup(response.text)
     results.extend([
         process_url_from_google(t.a['href']) for t in soup.findAll('h3', attrs={'class': 'r'})])
@@ -37,7 +39,9 @@ def process_url_from_google(url):
     '''
     Extract actual URL from the google forwarding link
     '''
-    return urllib.unquote(url[7:].split('&')[0])
+    #return urllib.unquote(url[7:].split('&')[0])
+    # If we use https, google gives us real links
+    return url
 
 
 def extract_text_from_letter(full_page):
@@ -68,13 +72,20 @@ def extract_text_from_letter(full_page):
 
 if __name__ == '__main__':
 
+    SESSION.get('https://www.google.com/foo')  # get some cookies in the session
     ES = get_index(ES_INDEX_NAME, LOGGER)
 
     for letter_identifier in LETTER_IDENTIFIERS:
+        LOGGER.info('Scraping "%s" from Google', letter_identifier)
         for i in range(0, 50):
-            for u in scrape_google('"{}"'.format(letter_identifier), SITE, int(10*i)):
+            urls = scrape_google('"{}"'.format(letter_identifier), SITE, int(10*i))
+            if len(urls) == 0:
+                LOGGER.info('Finishing "%s" after %s pages', letter_identifier, i)
+                break
+
+            for u in urls:
                 try:
-                    resp = fetch_page(u)
+                    resp = fetch_page(u, session=SESSION)
                     if 'html' not in resp.headers['content-type']:
                         raise Exception("Not HTML (content type {})".format(
                             resp.headers['content-type']))

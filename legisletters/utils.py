@@ -12,12 +12,15 @@ import hashlib
 from legisletters.constants import REQUEST_HEADERS
 
 
-def fetch_page(url):
+def fetch_page(url, session=None):
     '''
     get page with requests, return full response (text & headers accessible as
     properties.)
     '''
-    return requests.get(url, headers=REQUEST_HEADERS)
+    if not session:
+        return requests.get(url, headers=REQUEST_HEADERS)
+    else:
+        return session.get(url, headers=REQUEST_HEADERS)
 
 
 def get_logger(name):
