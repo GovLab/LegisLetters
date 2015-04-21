@@ -21,7 +21,7 @@ var Facetly = Facetly || (function($) {
         settings: {
             debug: true,
             selector: '#facetly',
-            elasticsearch: 'http://localhost:9200',
+            elasticsearch: window.location.protocol + '//' + window.location.host + ':9200',
             perPage: 25,
             currentPage: 1,
             excludedFields: [],
@@ -411,30 +411,30 @@ var Facetly = Facetly || (function($) {
         types: {
             terms: '<ul id="facet-{{name}}"> \
                 <li class="custom" data-clonable="facetly-{{name}}"> \
-                    <div class="form-inline"> \
+                    <div class="form-inline form-group"> \
                         <select class="input-small" name="{{name}}[0][operator]" data-type="operator" data-name="{{name}}" data-event="serializeTerms" data-method="change"> \
-                            <option value=""></option> \
+                            <!--<option value=""></option>--> \
                             <option value="must">{{trans "must"}}</option> \
                             <option value="should">{{trans "should"}}</option> \
                             <option value="must_not">{{trans "must_not"}}</option> \
                         </select> \
-                        <div class="input-append"> \
-                            <input class="input-medium" name="{{name}}[0][value]" type="text" data-name="{{name}}" data-type="value" data-event="serializeTerms" data-method="keyup"> \
-                            <a href="javascript:void()" class="add-on" data-event="clone" data-index="%5B%7Borig%3A%20%27{{name}}%5B0%5D%5Boperator%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Boperator%5D%27%7D%2C%20%7Borig%3A%20%27{{name}}%5B0%5D%5Bvalue%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Bvalue%5D%27%7D%5D" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
-                            <a href="javascript:void()" class="add-on" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-trash"></i></a> \
+                        <div class="input-group"> \
+                            <input class="input-small form-control" name="{{name}}[0][value]" type="text" data-name="{{name}}" data-type="value" data-event="serializeTerms" data-method="keyup"> \
+                            <a href="javascript:void()" class="input-group-addon" data-event="clone" data-index="%5B%7Borig%3A%20%27{{name}}%5B0%5D%5Boperator%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Boperator%5D%27%7D%2C%20%7Borig%3A%20%27{{name}}%5B0%5D%5Bvalue%5D%27%2C%20format%3A%20%27{{name}}%5B%7B%23%7D%5D%5Bvalue%5D%27%7D%5D" data-name="{{name}}" data-method="click"><span class="glyphicon glyphicon-plus"></span></a> \
+                            <a href="javascript:void()" class="input-group-addon" data-event="remove" data-name="{{name}}" data-method="click"><span class="glyphicon glyphicon-trash"></span></a> \
                         </div> \
                     </div> \
                 </li> \
                 {{#each facet.terms}} \
                     <li data-clonable="facetly-{{../name}}"> \
-                        <div class="form-inline"> \
+                        <div class="form-inline form-group"> \
                             <select class="input-small" name="{{../name}}[{{inc @index}}][operator]" data-name="{{../name}}" data-event="serializeTerms" data-method="change"> \
-                                <option value=""></option> \
+                                <!--<option value=""></option>--> \
                                 <option value="must">{{trans "must"}}</option> \
                                 <option value="should">{{trans "should"}}</option> \
                                 <option value="must_not">{{trans "must_not"}}</option> \
                             </select> \
-                            <input class="input-medium" type="text" value="{{this.term}}" name="{{../name}}[{{inc @index}}][value]" readonly="readonly" data-event="serializeTerms" data-method="keyup"> \
+                            <input class="input-small form-control" type="text" value="{{this.term}}" name="{{../name}}[{{inc @index}}][value]" readonly="readonly" data-event="serializeTerms" data-method="keyup"> \
                             <small>({{this.count}})</small> \
                         </div> \
                     </li> \
@@ -443,19 +443,19 @@ var Facetly = Facetly || (function($) {
             date_histogram: '<ul id="facet-{{name}}"> \
                 <li class="custom" data-clonable="facetly-{{name}}"> \
                     <div id="facetly-slider-graph-{{name}}-0"></div> \
-                    <div class="form-inline"> \
+                    <div class="form-inline form-group"> \
                         <select class="input-small" name="{{name}}[0][operator]" data-type="operator" data-name="{{name}}" data-event="serializeHistogram" data-method="change"> \
-                            <option value=""></option> \
+                            <!--<option value=""></option>--> \
                             <option value="must">{{trans "must"}}</option> \
                             <option value="should">{{trans "should"}}</option> \
                             <option value="must_not">{{trans "must_not"}}</option> \
                         </select> \
                         <div class="slide-wrapper"> \
-                            <input type="text" class="input-medium" name="{{name}}[0][value]" data-name="{{name}}" id="facetly-slider-{{name}}-0" value="" data-slider-min="0" data-slider-max="{{facet.entries.length}}" data-slider-step="1" data-slider-value="[0, {{facet.entries.length}}]" data-slider-selection="after" data-slider-tooltip="hide" data-event="serializeHistogram" method="change"> \
+                            <input type="text" class="input-small form-control" name="{{name}}[0][value]" data-name="{{name}}" id="facetly-slider-{{name}}-0" value="" data-slider-min="0" data-slider-max="{{facet.entries.length}}" data-slider-step="1" data-slider-value="[0, {{facet.entries.length}}]" data-slider-selection="after" data-slider-tooltip="hide" data-event="serializeHistogram" method="change"> \
                         </div> \
                         <!-- <div class="btn-group"> \
-                            <a href="javascript:void()" class="btn btn-mini" data-src="facetly-clonable-{{name}}" data-index="alert(\'TODO\')" data-event="clone" data-name="{{name}}" data-method="click"><i class="icon-plus"></i></a> \
-                            <a href="javascript:void()" class="btn btn-mini" data-event="remove" data-name="{{name}}" data-method="click"><i class="icon-trash"></i></a> \
+                            <a href="javascript:void()" class="btn btn-mini" data-src="facetly-clonable-{{name}}" data-index="alert(\'TODO\')" data-event="clone" data-name="{{name}}" data-method="click"><span class="glyphicon glyphicon-plus"></span></a> \
+                            <a href="javascript:void()" class="btn btn-mini" data-event="remove" data-name="{{name}}" data-method="click"><span class="glyphicon glyphicicon-trash"></span></a> \
                         </div> --> \
                     </div> \
                     <script> \
@@ -498,25 +498,22 @@ var Facetly = Facetly || (function($) {
                 </fieldset> \
             </form> \
         </div>',
-        results: '<div class="box-scrollable"> \
-            <table class="table table-striped table-bordered"> \
-                <thead> \
-                    {{thead results}} \
-                </thead> \
-                <tbody> \
-                    {{#each results.hits.hits}} \
-                    <tr> \
-                        {{#each this._source}} \
-                            {{json this}} \
-                        {{/each}} \
-                    </tr> \
-                    {{else}} \
-                    <tr> \
-                        <td>{{trans "no_results"}}</td> \
-                    </tr> \
-                    {{/each}} \
-                </tbody> \
-            </table> \
+        results: '<div> \
+              {{#each results.hits.hits}} \
+              <div class="panel panel-info"> \
+                  <div class="panel-heading"> \
+                      <a href="{{this._source.url}}" target="_blank">{{this._source.url}}</a> \
+                  </div> \
+                  <div class="panel-heading"> \
+                      <b>To:</b> {{this._source.recipients}} \
+                  </div> \
+                  <div class="panel-body"> \
+                      {{{this._source.preview}}}... \
+                  </div> \
+              </div> \
+              {{else}} \
+                  <div>{{trans "no_results"}}</div> \
+              {{/each}} \
         </div> \
         <p>{{results.hits.total}} {{trans "results"}}</p>',
         facets: '<form id="facetly-form"> \
@@ -579,9 +576,9 @@ var Facetly = Facetly || (function($) {
         },
         row1: '<div class="row-fluid" style="display: none;"></div>',
         row2: '<div class="row-fluid"></div>',
-        search: '<div class="span12"></div>',
-        sidebar: '<div class="sidebar span4"></div>',
-        results: '<div class="results span8"></div>'
+        search: '<div class="col-xs-12"></div>',
+        sidebar: '<div class="sidebar col-xs-4"></div>',
+        results: '<div class="results col-xs-8"></div>'
     };
 
     /* -----------------------------------------
@@ -737,6 +734,12 @@ var Facetly = Facetly || (function($) {
         loadResults: function(callback) {
             _log('Loading Results');
             Ajax.call(Utils.elastic_search_url(), Query.create(Events.serialize()), function(data) {
+                for (var i = 0; i < data.hits.hits.length ; i ++) {
+                    if (data.hits.hits[i]._source.text) {
+                        data.hits.hits[i]._source.preview =
+                          data.hits.hits[i]._source.text.slice(0, 500).replace(/\n/g, '<p>');
+                    }
+                }
                 UI.results.html(Templates.results({results: data}));
                 $(Utils.settings.selector + ' .nbresults').html(data.hits.total || 0);
                 _log('Results Loaded');
