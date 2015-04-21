@@ -10,6 +10,7 @@ module.exports = function(grunt) {
           "backbone": ["underscore", "jquery"],
           "bootstrap-slider": ["bootstrap"],
           "jquery-ui": ["jquery"],
+          "bootstrap": ["jquery-ui"],
           "visualsearch": ["backbone", "underscore"]
         },
         cssDest: 'dist/css/bower_deps.css',
@@ -36,6 +37,12 @@ module.exports = function(grunt) {
       all: {
         cwd: 'src',
         src: ['css/*', 'index.html'],
+        dest: 'dist',
+        expand: true
+      },
+      bootstrap: {
+        cwd: 'bower_components/bootstrap/',
+        src: ['img/*'],
         dest: 'dist',
         expand: true
       }
