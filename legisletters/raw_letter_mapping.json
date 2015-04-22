@@ -1,0 +1,19 @@
+{
+  "raw_letter" : {
+    "properties" : {
+      "html" : {
+        "type" : "string"
+      },
+      "url" : {
+        "type" : "string"
+      },
+      "identifier" : {
+        "type" : "string"
+      },
+      "scrapeTime" : {
+        "type" : "date",
+        "format" : "dateOptionalTime"
+      }
+    }
+  }
+}

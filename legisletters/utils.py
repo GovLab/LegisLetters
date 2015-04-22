@@ -9,6 +9,7 @@ import sys
 import requests
 import hashlib
 
+from bs4 import BeautifulSoup
 from legisletters.constants import REQUEST_HEADERS
 
 
@@ -60,12 +61,8 @@ def get_document_id(url, full_doc_html):
     return u'{}#{}'.format(url, hashlib.sha1(full_doc_html).hexdigest())
 
 
-def els2text(els):
+def html2text(html):
     '''
-    Convert a series BeautifulSoup elements to plaintext
+    Convert a glob of html to text.
     '''
-    arr = []
-    for element in els:
-        if hasattr(element, 'get_text'):
-            arr.append(element.get_text())
-    return u'\n'.join(arr)
+    return BeautifulSoup(html).get_text('\n').replace(u'\xa0', ' ')

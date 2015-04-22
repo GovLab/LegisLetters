@@ -1,0 +1,22 @@
+{
+  "raw_letter" : {
+    "properties" : {
+      "doc" : {
+        "properties" : {
+          "html" : {
+            "type" : "string",
+            "index": "not_analyzed"
+          },
+          "identifier" : {
+            "type" : "string",
+            "index": "not_analyzed"
+          },
+          "scrapeTime" : {
+            "type" : "date",
+            "format" : "dateOptionalTime"
+          }
+        }
+      }
+    }
+  }
+}

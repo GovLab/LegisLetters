@@ -7,9 +7,10 @@ import traceback
 import datetime
 import re
 import requests
+import json
 from bs4 import BeautifulSoup
 
-from legisletters.constants import ES_INDEX_NAME, ES_LETTER_DOC_TYPE, LETTER_IDENTIFIERS
+from legisletters.constants import ES_INDEX_NAME, ES_RAW_DOC_TYPE, LETTER_IDENTIFIERS
 from legisletters.utils import get_logger, fetch_page, get_document_id, get_index
 
 LOGGER = get_logger(__name__)
@@ -74,6 +75,8 @@ if __name__ == '__main__':
 
     SESSION.get('https://www.google.com/foo')  # get some cookies in the session
     ES = get_index(ES_INDEX_NAME, LOGGER)
+    ES.indices.put_mapping(index=ES_INDEX_NAME, doc_type=ES_RAW_DOC_TYPE,
+                           body=json.load(open('legisletters/raw_letter_mapping.json', 'r')))
 
     for letter_identifier in LETTER_IDENTIFIERS:
         LOGGER.info('Scraping "%s" from Google', letter_identifier)
@@ -97,7 +100,7 @@ if __name__ == '__main__':
                     doc_id = get_document_id(u, original_html.encode('utf8'))
 
                     ES.index(index=ES_INDEX_NAME,
-                             doc_type=ES_LETTER_DOC_TYPE,
+                             doc_type=ES_RAW_DOC_TYPE,
                              id=doc_id,
                              body={
                                  'url': u,

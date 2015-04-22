@@ -1,14 +1,6 @@
 {
   "letter" : {
     "properties" : {
-      "html" : {
-        "type" : "string",
-        "index": "not_analyzed"
-      },
-      "identifier" : {
-        "type" : "string",
-        "index": "not_analyzed"
-      },
       "letterDate" : {
         "type" : "date",
         "format" : "dateOptionalTime"
@@ -25,7 +17,8 @@
       },
       "scrapeTime" : {
         "type" : "date",
-        "format" : "dateOptionalTime"
+        "format" : "dateOptionalTime",
+        "index": "not_analyzed"
       },
       "signatures" : {
         "type" : "string"
