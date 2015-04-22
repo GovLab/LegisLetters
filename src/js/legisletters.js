@@ -3,7 +3,7 @@
 $(window).load(function () {
     Facetly.init({
         selector: '#facetly',
-        elasticsearch: window.location.protocol + '//' + window.location.host + ':9200' + '/legisletters/_search',
+        elasticsearch: window.location.protocol + '//' + window.location.host + ':9200' + '/legisletters/letter/_search',
         onSerialize: function(/*obj, str*/) {
             // console.debug(str);
         },
@@ -17,7 +17,7 @@ $(window).load(function () {
             text: {
                 terms: {
                     field: "text",
-                    size: 0
+                    size: 5
                 }
             },
             letterDate: {
@@ -29,13 +29,13 @@ $(window).load(function () {
             recipients: {
                 terms: {
                     field: "recipients",
-                    size: 0
+                    size: 10
                 }
             },
             signatures: {
                 terms: {
                     field: "signatures",
-                    size: 0
+                    size: 10
                 }
             }
             /*

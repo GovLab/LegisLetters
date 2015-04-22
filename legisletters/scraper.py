@@ -10,7 +10,8 @@ import requests
 import json
 from bs4 import BeautifulSoup
 
-from legisletters.constants import ES_INDEX_NAME, ES_RAW_DOC_TYPE, LETTER_IDENTIFIERS
+from legisletters.constants import (ES_INDEX_NAME, ES_RAW_DOC_TYPE,
+                                    LETTER_IDENTIFIERS)
 from legisletters.utils import get_logger, fetch_page, get_document_id, get_index
 
 LOGGER = get_logger(__name__)
@@ -63,7 +64,8 @@ def extract_text_from_letter(full_page):
             enclosing_el = matching_text.parent
 
             # Ascend through tags to find important enclosing block
-            while enclosing_el.parent.get_text() == enclosing_el.get_text():
+            while enclosing_el.parent.get_text() == enclosing_el.get_text() or \
+                  len(enclosing_el.get_text()) < 100:
                 enclosing_el = enclosing_el.parent
 
             return unicode(enclosing_el.parent), identifier

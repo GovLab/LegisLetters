@@ -6,18 +6,20 @@ import re
 import traceback
 import json
 import elasticsearch
+import pdb
 
+from bs4 import BeautifulSoup
 from dateutil import parser
 
-from legisletters.constants import ES_INDEX_NAME, ES_LETTER_DOC_TYPE, ES_RAW_DOC_TYPE
+from legisletters.constants import (ES_INDEX_NAME, ES_LETTER_DOC_TYPE,
+                                    ES_RAW_DOC_TYPE, END_RECIPIENTS_RE,
+                                    END_TEXT_RE, END_SIGNATURES_RE)
+
 from legisletters.utils import html2text, get_logger, get_index
 
 
 RECIPIENTS, TEXT, SIGNATURES, ATTACHMENTS = ('recipients', 'text',
                                              'signatures', 'attachments')
-END_RECIPIENTS_RE = re.compile(r'dear|to the', re.IGNORECASE)
-END_TEXT_RE = re.compile(r'sincerely|window\.print\(\)', re.IGNORECASE)
-END_SIGNATURES_RE = re.compile(r'###|<footer|<script', re.IGNORECASE)
 
 LOGGER = get_logger(__name__)
 NON_LETTERS = re.compile(r'\W+')
@@ -37,39 +39,54 @@ def find_date(text):
             pass
 
 
-def process_letter(text, identifier, doc_id):  # pylint: disable=too-many-branches
+def process_letter(text, identifier, doc_id):
     '''
     process a letter from its text and known identifier.
 
     returns None if the letter can't be processed.
     '''
+    parsed = {}
+
     matcher = re.compile(identifier, re.IGNORECASE)
 
-    press_release, remainder = matcher.split(text, maxsplit=1)
-    press_date = find_date(press_release)
+    soup = BeautifulSoup(text)
+    parsed['pdfs'] = [pdf.get('href') for pdf in soup.select('a[href*=".pdf"]')]
+    parsed['pdfs'].extend([pdf.get('href') for pdf in soup.findAll(
+        name='a', text=re.compile('pdf', re.IGNORECASE))])
 
-    recipients, remainder = re.split(END_RECIPIENTS_RE, remainder, maxsplit=1)
-    letter_text, remainder = re.split(END_TEXT_RE, remainder, maxsplit=1)
-    letter_date = find_date(letter_text)
+    press_release, remainder = matcher.split(text, maxsplit=1)
+    parsed[u'pressReleaseText'] = html2text(press_release)
+    parsed[u'pressDate'] = find_date(press_release)
+
+    try:
+        recipients, remainder = re.split(END_RECIPIENTS_RE, remainder, maxsplit=1)
+        parsed['recipients'] = html2text(recipients)
+    except ValueError:
+        LOGGER.warn("Could not identify recipients in %s, aborting", doc_id)
+        if len(remainder) > 200:
+            pass
+            #pdb.set_trace()
+        return parsed
+
+    try:
+        letter_text, remainder = re.split(END_TEXT_RE, remainder, maxsplit=1)
+    except ValueError:
+        parsed['text'] = html2text(remainder)
+        LOGGER.warn("Could not identify letter text in %s, aborting", doc_id)
+        #pdb.set_trace()
+        return parsed
+
+    parsed['letterDate'] = find_date(letter_text)
+    parsed['text'] = html2text(letter_text)
 
     try:
         signatures, remainder = re.split(END_SIGNATURES_RE, remainder, maxsplit=1)
+        parsed[u'signatures'] = html2text(signatures)
+
     except ValueError:
-        signatures = ''
+        LOGGER.warn("Could not identify end of signatures in %s, aborting", doc_id)
 
-
-    return {
-        u'pressReleaseText': html2text(press_release),
-        u'recipients': html2text(recipients),
-        u'text': html2text(letter_text),
-        u'signatures': html2text(signatures),
-        u'letterDate': letter_date,
-        u'pressDate': press_date,
-        #u'attachments': els2text(sections[ATTACHMENTS])
-    }
-    #import pdb
-    #pdb.set_trace()
-
+    return parsed
 
     # enclosing_el = BeautifulSoup(text)
     # matching_text = enclosing_el.find(text=matcher)
@@ -152,11 +169,12 @@ if __name__ == '__main__':
                 LOGGER.info("--SKIP: %s (seems to be a search page)", doc['_id'])
                 continue
 
-            parsed = process_letter(source['html'], source['identifier'], doc['_id'])
+            parsed_letter = process_letter(source['html'], source['identifier'], doc['_id'])
 
             try:
+                #pdb.set_trace()
                 ES.update(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'], body={
-                    'doc': parsed
+                    'doc': parsed_letter
                 })
             except elasticsearch.NotFoundError:
                 ES.create(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'], body=source)
@@ -164,7 +182,6 @@ if __name__ == '__main__':
         except Exception as err:  #pylint: disable=broad-except
             traceback.print_exc(err)
             LOGGER.error("--ERR: %s (%s)", doc['_id'], err)
-            import pdb
-            pdb.set_trace()
+            #pdb.set_trace()
 
 # "stopwords": ["the","to","and","of","in","a","that","for","this","you","is","with","as","on","are","we","have","by","your","be","has","from","it","an","these","not","our","sincerely","will","or","at","their","would","more","which","other","its","all","if","been","also","ensure","provide","any","urge","than","while","should","thank","can","they","such","was","about","including","but","new","work","who","many","write","one","united","know","so","were","year","over","may","important","under","no","time","only","department","act","look","there","regarding","make","well","some","years","could","those","efforts","use","must","ask","into","when","do","1","i","issue","address","continue","believe","since","matter","how","further","what","process","attention","through","take","critical","significant","made","working","country","both","states","forward","support","request","u.s","state","federal","recent","congress","government","american","information","law","public","national","administration","writing","against","help","given","need","additional","during","long","current","however","most","concerns","without","response","consideration","future","them","out","two","does","policy","last","action","between","protect","us","first","because","whether","million","across","services","used","number","appreciate","already","understand","before","had","full","people","service","order","concerned","recently","now","issues","concern","being","report","following","strong","consider","addition","up","like","impact","within","2","3","4","5","6","7","8","9","even","possible","office","system","part","clear","after","review","percent","necessary","program","please","based","several","americans","actions","serious","questions","plan","officials","families","committee","fully","end","according","proposed","three"] # pylint: disable=line-too-long

@@ -21,7 +21,7 @@ var Facetly = Facetly || (function($) {
         settings: {
             debug: true,
             selector: '#facetly',
-            elasticsearch: window.location.protocol + '//' + window.location.host + ':9200',
+            elasticsearch: window.location.protocol + '//' + window.location.host + ':9200/legisletters/letter',
             perPage: 25,
             currentPage: 1,
             excludedFields: [],
@@ -430,6 +430,7 @@ var Facetly = Facetly || (function($) {
                         <div class="form-inline form-group"> \
                             <select class="input-small" name="{{../name}}[{{inc @index}}][operator]" data-name="{{../name}}" data-event="serializeTerms" data-method="change"> \
                                 <!--<option value=""></option>--> \
+                                <option value=""></option> \
                                 <option value="must">{{trans "must"}}</option> \
                                 <option value="should">{{trans "should"}}</option> \
                                 <option value="must_not">{{trans "must_not"}}</option> \
