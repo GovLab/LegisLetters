@@ -1,2 +1,4 @@
-http.cors.enabled: true
-http.cors.allow-origin: '*'
+# http.cors.enabled: true
+# http.cors.allow-origin: '*'
+
+bootstrap.mlockall: true

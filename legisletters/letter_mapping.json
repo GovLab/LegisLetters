@@ -24,9 +24,7 @@
         "type" : "string"
       },
       "text" : {
-        "type" : "string",
-        "analyzer": "letters_text",
-        "include_in_all": false
+        "type" : "string"
       },
       "url" : {
         "type" : "string"

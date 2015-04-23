@@ -6,7 +6,7 @@ import re
 import traceback
 import json
 import elasticsearch
-import pdb
+#import pdb
 
 from bs4 import BeautifulSoup
 from dateutil import parser
@@ -59,8 +59,8 @@ def process_letter(text, identifier, doc_id):
     parsed[u'pressDate'] = find_date(press_release)
 
     try:
-        recipients, remainder = re.split(END_RECIPIENTS_RE, remainder, maxsplit=1)
-        parsed['recipients'] = html2text(recipients)
+        recipients1, recipients2, remainder = re.split(END_RECIPIENTS_RE, remainder, maxsplit=1)
+        parsed['recipients'] = html2text(recipients1 + recipients2)
     except ValueError:
         LOGGER.warn("Could not identify recipients in %s, aborting", doc_id)
         if len(remainder) > 200:
@@ -69,7 +69,9 @@ def process_letter(text, identifier, doc_id):
         return parsed
 
     try:
-        letter_text, remainder = re.split(END_TEXT_RE, remainder, maxsplit=1)
+        letter_text1, letter_text2, letter_text3, remainder = re.split(
+            END_TEXT_RE, remainder, maxsplit=1)
+        letter_text = letter_text1 + letter_text2 + letter_text3
     except ValueError:
         parsed['text'] = html2text(remainder)
         LOGGER.warn("Could not identify letter text in %s, aborting", doc_id)
@@ -88,75 +90,11 @@ def process_letter(text, identifier, doc_id):
 
     return parsed
 
-    # enclosing_el = BeautifulSoup(text)
-    # matching_text = enclosing_el.find(text=matcher)
-    #
-    # if not matching_text:
-    #     raise Exception("can't find letter identifier {}".format(identifier))
-
-    # # Ascend through tags to find important enclosing block
-    # enclosing_el = matching_text.parent
-    # while enclosing_el.parent.get_text() == enclosing_el.get_text():
-    #     enclosing_el = enclosing_el.parent
-
-    # press_release = els2text(enclosing_el.previous_siblings)
-    # press_date = None
-    # for element in enclosing_el.previous_siblings:
-    #     if hasattr(element, 'get_text'):
-    #         try:
-    #             press_date = parser.parse(element.get_text())
-    #             break
-    #         except ValueError:
-    #             pass
-
-    # full_letter_plus_attachments = enclosing_el.next_siblings
-
-    # sections = {
-    #     RECIPIENTS: [],
-    #     TEXT: [],
-    #     SIGNATURES: [],
-    #     #ATTACHMENTS: []
-    # }
-    # cur_section = RECIPIENTS
-
-    # letter_date = None
-    # for element in full_letter_plus_attachments:
-    #     if not hasattr(element, 'get_text'):
-    #         continue
-
-    #     # Take the first parseable date as the letter date.
-    #     if not letter_date:
-    #         try:
-    #             letter_date = parser.parse(element.get_text())
-    #             continue
-    #         except ValueError:
-    #             pass
-
-    #     sections[cur_section].append(element)
-
-    #     if cur_section == RECIPIENTS and END_RECIPIENTS_RE.search(element.get_text()):
-    #         cur_section = TEXT
-    #     elif cur_section == TEXT and END_TEXT_RE.search(element.get_text()):
-    #         cur_section = SIGNATURES
-
-    # for section, value in sections.iteritems():
-    #     if not value:
-    #         LOGGER.warn("Could not extract value for '%s' in %s", section, doc_id)
-
-    # return {
-    #     u'pressReleaseText': press_release,
-    #     u'recipients': els2text(sections[RECIPIENTS]),
-    #     u'text': els2text(sections[TEXT]),
-    #     u'signatures': els2text(sections[SIGNATURES]),
-    #     u'letterDate': letter_date,
-    #     u'pressDate': press_date,
-    #     #u'attachments': els2text(sections[ATTACHMENTS])
-    # }
-
 
 if __name__ == '__main__':
 
     ES = get_index(ES_INDEX_NAME, LOGGER)
+    ES.indices.delete_mapping(index=ES_INDEX_NAME, doc_type=ES_LETTER_DOC_TYPE)
     ES.indices.put_mapping(index=ES_INDEX_NAME, doc_type=ES_LETTER_DOC_TYPE,
                            body=json.load(open('legisletters/letter_mapping.json', 'r')))
 
@@ -170,14 +108,13 @@ if __name__ == '__main__':
                 continue
 
             parsed_letter = process_letter(source['html'], source['identifier'], doc['_id'])
+            parsed_letter['url'] = url
 
             try:
-                #pdb.set_trace()
-                ES.update(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'], body={
-                    'doc': parsed_letter
-                })
+                ES.delete(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'])
             except elasticsearch.NotFoundError:
-                ES.create(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'], body=source)
+                pass
+            ES.create(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'], body=parsed_letter)
             LOGGER.info("++OK: %s", doc['_id'])
         except Exception as err:  #pylint: disable=broad-except
             traceback.print_exc(err)

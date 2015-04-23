@@ -2,16 +2,23 @@
   "settings": {
     "analysis": {
       "analyzer": {
-        "letters_text": {
+        "letters_text6": {
           "tokenizer": "standard",
-          "filter": ["letters_common_grams", "letters_text_shingle"]
+          "filter": ["letters_lowercase2", "letters_stopwords", "letters_text_shingle"]
         }
       },
       "filter": {
+        "letters_lowercase2": {
+          "type": "lowercase"
+        },
         "letters_common_grams": {
           "type": "common_grams",
           "ignore_case": true,
-          "common_words": "_english_"
+          "common_words": "_english_",
+          "query_mode": true
+        },
+        "letters_stopwords": {
+          "type": "stop"
         },
         "letters_text_shingle": {
           "type": "shingle",

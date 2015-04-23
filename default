@@ -39,5 +39,7 @@ server {
 		proxy_hide_header Access-Control-Allow-Headers;
 		add_header Access-Control-Allow-Headers 'X-Requested-With, Content-Type';
 		add_header Access-Control-Allow-Credentials true;
+
+		rewrite ^/?elasticsearch/(.*)$ $1 break;
 	}
 }

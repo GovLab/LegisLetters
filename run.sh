@@ -13,4 +13,5 @@ docker run \
   -d --name legisletters thegovlab/legisletters
 
 docker exec -d legisletters nginx
-docker exec -d legisletters /docker-entrypoint.sh elasticsearch
+#docker exec -d legisletters /docker-entrypoint.sh elasticsearch
+# -e ES_HEAP_SIZE=768m \

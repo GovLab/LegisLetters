@@ -21,7 +21,7 @@ var Facetly = Facetly || (function($) {
         settings: {
             debug: true,
             selector: '#facetly',
-            elasticsearch: window.location.protocol + '//' + window.location.host + ':9200/legisletters/letter',
+            elasticsearch: '/elasticsearch/legisletters/letter',
             perPage: 25,
             currentPage: 1,
             excludedFields: [],
@@ -510,6 +510,9 @@ var Facetly = Facetly || (function($) {
                   </div> \
                   <div class="panel-body"> \
                       {{{this._source.preview}}}... \
+                  </div> \
+                  <div class="panel-footer"> \
+                      {{{this._source.signatures}}}... \
                   </div> \
               </div> \
               {{else}} \
