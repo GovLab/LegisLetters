@@ -520,6 +520,9 @@ var Facetly = Facetly || (function($) {
                       </div> \
                   </div> \
                   <div class="panel-footer"> \
+                      {{{this._source.hostLegislator}}} \
+                  </div> \
+                  <div class="panel-footer"> \
                       {{{this._source.signatures}}} \
                   </div> \
               </div> \

@@ -8,9 +8,10 @@ import elasticsearch
 import sys
 import requests
 import hashlib
+import urlparse
 
 from bs4 import BeautifulSoup
-from legisletters.constants import REQUEST_HEADERS
+from legisletters.constants import REQUEST_HEADERS, LEGISLATORS_BY_URL
 
 
 def fetch_page(url, session=None):
@@ -66,3 +67,11 @@ def html2text(html):
     Convert a glob of html to text.
     '''
     return BeautifulSoup(html).get_text('\n').replace(u'\xa0', ' ')
+
+
+def get_legislator_from_url(url):
+    '''
+    Obtain the name of a legislator from the URL of the document.
+    '''
+    parsed = urlparse.urlparse(url)
+    return LEGISLATORS_BY_URL.get(parsed.netloc)

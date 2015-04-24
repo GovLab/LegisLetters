@@ -73,6 +73,32 @@ def extract_text_from_letter(full_page):
     raise Exception("Cannot identify letter in text")
 
 
+def download_url(url, es):
+    '''
+    Download raw content for URL
+    '''
+    resp = fetch_page(url, session=SESSION)
+    if 'html' not in resp.headers['content-type']:
+        raise Exception("Not HTML (content type {})".format(
+            resp.headers['content-type']))
+
+    original_html, text_identifier = extract_text_from_letter(resp.text)
+
+    scrape_time = datetime.datetime.now()
+
+    doc_id = get_document_id(url, original_html.encode('utf8'))
+
+    es.index(index=ES_INDEX_NAME,
+             doc_type=ES_RAW_DOC_TYPE,
+             id=doc_id,
+             body={
+                 'url': url,
+                 'html': original_html,
+                 'identifier': text_identifier,
+                 'scrapeTime': scrape_time
+             })
+
+
 if __name__ == '__main__':
 
     SESSION.get('https://www.google.com/foo')  # get some cookies in the session
@@ -90,26 +116,7 @@ if __name__ == '__main__':
 
             for u in urls:
                 try:
-                    resp = fetch_page(u, session=SESSION)
-                    if 'html' not in resp.headers['content-type']:
-                        raise Exception("Not HTML (content type {})".format(
-                            resp.headers['content-type']))
-
-                    original_html, text_identifier = extract_text_from_letter(resp.text)
-
-                    scrape_time = datetime.datetime.now()
-
-                    doc_id = get_document_id(u, original_html.encode('utf8'))
-
-                    ES.index(index=ES_INDEX_NAME,
-                             doc_type=ES_RAW_DOC_TYPE,
-                             id=doc_id,
-                             body={
-                                 'url': u,
-                                 'html': original_html,
-                                 'identifier': text_identifier,
-                                 'scrapeTime': scrape_time
-                             })
+                    download_url(u, ES)
                     LOGGER.info("++OK: %s", u)
                 except Exception as err:  #pylint: disable=broad-except
                     traceback.print_exc(err)

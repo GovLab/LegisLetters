@@ -15,7 +15,8 @@ from legisletters.constants import (ES_INDEX_NAME, ES_LETTER_DOC_TYPE,
                                     ES_RAW_DOC_TYPE, END_RECIPIENTS_RE,
                                     END_TEXT_RE, END_SIGNATURES_RE)
 
-from legisletters.utils import html2text, get_logger, get_index
+from legisletters.utils import (html2text, get_logger, get_index,
+                                get_legislator_from_url)
 
 
 RECIPIENTS, TEXT, SIGNATURES, ATTACHMENTS = ('recipients', 'text',
@@ -39,7 +40,7 @@ def find_date(text):
             pass
 
 
-def process_letter(text, identifier, doc_id):
+def process_letter(text, identifier, doc_id): #pylint: disable=too-many-locals
     '''
     process a letter from its text and known identifier.
 
@@ -68,11 +69,11 @@ def process_letter(text, identifier, doc_id):
             #pdb.set_trace()
         return parsed
 
-    try:
-        letter_text1, letter_text2, letter_text3, remainder = re.split(
-            END_TEXT_RE, remainder, maxsplit=1)
-        letter_text = letter_text1 + letter_text2 + letter_text3
-    except ValueError:
+    split = re.split(END_TEXT_RE, remainder)
+    if len(split) > 1:
+        remainder = split[-1]
+        letter_text = ''.join(split[0:-1])
+    else:
         parsed['text'] = html2text(remainder)
         LOGGER.warn("Could not identify letter text in %s, aborting", doc_id)
         #pdb.set_trace()
@@ -94,7 +95,10 @@ def process_letter(text, identifier, doc_id):
 if __name__ == '__main__':
 
     ES = get_index(ES_INDEX_NAME, LOGGER)
-    ES.indices.delete_mapping(index=ES_INDEX_NAME, doc_type=ES_LETTER_DOC_TYPE)
+    try:
+        ES.indices.delete_mapping(index=ES_INDEX_NAME, doc_type=ES_LETTER_DOC_TYPE)
+    except elasticsearch.exceptions.NotFoundError:
+        pass
     ES.indices.put_mapping(index=ES_INDEX_NAME, doc_type=ES_LETTER_DOC_TYPE,
                            body=json.load(open('legisletters/letter_mapping.json', 'r')))
 
@@ -109,6 +113,7 @@ if __name__ == '__main__':
 
             parsed_letter = process_letter(source['html'], source['identifier'], doc['_id'])
             parsed_letter['url'] = url
+            parsed_letter['hostLegislator'] = get_legislator_from_url(url)
 
             try:
                 ES.delete(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'])

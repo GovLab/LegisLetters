@@ -32,6 +32,12 @@ $(window).load(function () {
                     size: 10
                 }
             },
+            hostLegislator: {
+                terms: {
+                    field: "hostLegislator",
+                    size: 50
+                }
+            },
             signatures: {
                 terms: {
                     field: "signatures",
