@@ -16,5 +16,5 @@ LETTER_IDENTIFIERS = [
     'text of the full letter'
 ]
 END_RECIPIENTS_RE = re.compile(r'(>dear[^:,<]+[^:<]|>to the[^:,<]+[^:<])', re.IGNORECASE)
-END_TEXT_RE = re.compile(r'(sincerely|thank you[\w\s]*for your|look forward to[\w\s]*reply|respectfully yours)([^:,<]+)', re.IGNORECASE)
+END_TEXT_RE = re.compile(r'(sincerely|thank you[\w\s]*for your|look forward to[\w\s]*reply|respectfully yours)([^:,<]*)', re.IGNORECASE)
 END_SIGNATURES_RE = re.compile(r'###|<footer|<script|-\d+-', re.IGNORECASE)

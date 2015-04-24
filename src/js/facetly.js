@@ -509,10 +509,18 @@ var Facetly = Facetly || (function($) {
                       <b>To:</b> {{this._source.recipients}} \
                   </div> \
                   <div class="panel-body"> \
-                      {{{this._source.preview}}}... \
+                      <input class="read-more" type="checkbox" id="toggle-{{this._id}}"> \
+                      <div class="preview"> \
+                         {{{this._source.preview}}}... \
+                         <label class="toggle-label" for="toggle-{{this._id}}">Show full letter</label> \
+                      </div> \
+                      <div class="full-text"> \
+                         <label class="toggle-label" for="toggle-{{this._id}}">Hide full text</label> \
+                         {{{this._source.text}}} \
+                      </div> \
                   </div> \
                   <div class="panel-footer"> \
-                      {{{this._source.signatures}}}... \
+                      {{{this._source.signatures}}} \
                   </div> \
               </div> \
               {{else}} \
@@ -739,9 +747,11 @@ var Facetly = Facetly || (function($) {
             _log('Loading Results');
             Ajax.call(Utils.elastic_search_url(), Query.create(Events.serialize()), function(data) {
                 for (var i = 0; i < data.hits.hits.length ; i ++) {
-                    if (data.hits.hits[i]._source.text) {
-                        data.hits.hits[i]._source.preview =
-                          data.hits.hits[i]._source.text.slice(0, 500).replace(/\n/g, '<p>');
+                    var d = data.hits.hits[i]._source;
+                    if (d.text) {
+                        d.text = d.text.replace(/\n+/g, '<br><br>');
+                        d.preview = d.text.slice(0, 500);
+                        d.remainder = d.text.slice(500);
                     }
                 }
                 UI.results.html(Templates.results({results: data}));
@@ -772,6 +782,10 @@ var Facetly = Facetly || (function($) {
 // RegExp quotes
 RegExp.quote = function(str) {
     return (str+'').replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+};
+
+readMore = function(el) {
+  debugger;
 };
 
 // Serialize Object

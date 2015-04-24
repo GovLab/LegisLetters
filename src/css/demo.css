@@ -37,3 +37,33 @@ margin-top: 28px;
 .input-small {
   width: 140px !important;
 }
+
+.toggle-label {
+  display: block;
+  cursor: pointer;
+  color: #337AB7;
+}
+
+.toggle-label:hover {
+  text-decoration: underline;
+}
+
+.read-more {
+  opacity: 0;
+}
+
+.read-more ~ .full-text {
+  display: none;
+}
+
+.read-more:checked ~ .full-text {
+  display: block;
+}
+
+.read-more ~ .preview {
+  display: block;
+}
+
+.read-more:checked ~ .preview {
+  display: none;
+}
