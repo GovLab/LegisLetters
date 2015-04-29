@@ -50,6 +50,9 @@ margin-top: 28px;
 
 .read-more {
   opacity: 0;
+  position: absolute;
+  height: 0px;
+  width: 0px;
 }
 
 .read-more ~ .full-text {

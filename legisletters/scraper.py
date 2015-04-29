@@ -16,7 +16,7 @@ from legisletters.utils import get_logger, fetch_page, get_document_id, get_inde
 
 LOGGER = get_logger(__name__)
 
-SITE = "senate.gov"
+SITE = "house.gov"
 START = 0
 SESSION = requests.session()
 

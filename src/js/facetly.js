@@ -503,7 +503,7 @@ var Facetly = Facetly || (function($) {
               {{#each results.hits.hits}} \
               <div class="panel panel-info"> \
                   <div class="panel-heading"> \
-                      <a href="{{this._source.url}}" target="_blank">{{this._source.url}}</a> \
+                      <a href="{{this._source.url}}" target="_blank">(Original)</a> \
                   </div> \
                   <div class="panel-heading"> \
                       <b>To:</b> {{this._source.recipients}} \
@@ -520,11 +520,29 @@ var Facetly = Facetly || (function($) {
                       </div> \
                   </div> \
                   <div class="panel-footer"> \
-                      {{{this._source.hostLegislator}}} \
+                      {{#if this._source.signatures}} \
+                      <b>Hosted on the site of:</b> {{{this._source.hostLegislator}}} \
+                      {{else}} \
+                      <i>Unable to determine host legislator from URL.</i> \
+                      {{/if}} \
                   </div> \
                   <div class="panel-footer"> \
-                      {{{this._source.signatures}}} \
+                      {{#if this._source.signatures}} \
+                      <b>Additional Signatures:</b> {{{this._source.signatures}}} \
+                      {{else}} \
+                      <i>Could not identify additional signatures.</i> \
+                      {{/if}} \
                   </div> \
+                  {{#if this._source.pdfs}} \
+                  <div class="panel-footer"> \
+                      <b>PDFs:</b> \
+                      <ul> \
+                      {{#each this._source.pdfs}} \
+                          <li><a href="{{this}}" target="_blank">{{this}}</a></li> \
+                      {{/each}} \
+                      </ul> \
+                  </div> \
+                  {{/if}} \
               </div> \
               {{else}} \
                   <div>{{trans "no_results"}}</div> \
@@ -697,7 +715,7 @@ var Facetly = Facetly || (function($) {
                     }
                     for (i in facet.terms) {
                         var term = facet.terms[i].term;
-                        values[name].push(term);   
+                        values[name].push(term);
                     }
                 }
 
@@ -752,7 +770,9 @@ var Facetly = Facetly || (function($) {
                 for (var i = 0; i < data.hits.hits.length ; i ++) {
                     var d = data.hits.hits[i]._source;
                     if (d.text) {
-                        d.text = d.text.replace(/\n+/g, '<br><br>');
+                        d.text = d.text.replace(/\s*\n+\s*/g, '<br><br>');
+                        d.text = d.text.replace(/^(<br[^>]*>|:)*/, '');
+                        d.text = d.text.replace(/<br[^>]*>*$/, '');
                         d.preview = d.text.slice(0, 500);
                         d.remainder = d.text.slice(500);
                     }

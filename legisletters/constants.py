@@ -25,7 +25,7 @@ END_TEXT_RE = re.compile(
     r'for these reasons|we urge'
     r')([^<]*)', re.IGNORECASE)
 #END_TEXT_SECONDARY_RE = re.compile(r'(###)([^:,<]*)', re.IGNORECASE)
-END_SIGNATURES_RE = re.compile(r'###|<footer|<script|-\d+-', re.IGNORECASE)
+END_SIGNATURES_RE = re.compile(r'cc:|###|<footer|<script|-\d+-', re.IGNORECASE)
 
 LEGISLATORS_DATA = json.load(open('legisletters/legislators-current.json', 'r'))
 

@@ -29,19 +29,19 @@ $(window).load(function () {
             recipients: {
                 terms: {
                     field: "recipients",
-                    size: 10
+                    size: 0
                 }
             },
             hostLegislator: {
                 terms: {
                     field: "hostLegislator",
-                    size: 50
+                    size: 0
                 }
             },
             signatures: {
                 terms: {
                     field: "signatures",
-                    size: 10
+                    size: 0
                 }
             }
             /*
