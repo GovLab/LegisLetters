@@ -506,18 +506,33 @@ var Facetly = Facetly || (function($) {
                       <a href="{{this._source.url}}" target="_blank">(Original)</a> \
                   </div> \
                   <div class="panel-heading"> \
-                      <b>To:</b> {{this._source.recipients}} \
+                      {{#if this._source.letterDate}} \
+                           <b>To:</b> {{this._source.recipients}} \
+                      {{else}} \
+                          <i>Could not identify recipients</i> \
+                      {{/if}} \
+                  </div> \
+                  <div class="panel-heading"> \
+                      {{#if this._source.letterDate}} \
+                          <b>Dated:</b> {{this._source.letterDate}} \
+                      {{else}} \
+                          <i>Could not determine date</i> \
+                      {{/if}} \
                   </div> \
                   <div class="panel-body"> \
-                      <input class="read-more" type="checkbox" id="toggle-{{this._id}}"> \
-                      <div class="preview"> \
-                         {{{this._source.preview}}}... \
-                         <label class="toggle-label" for="toggle-{{this._id}}">Show full letter</label> \
-                      </div> \
-                      <div class="full-text"> \
-                         <label class="toggle-label" for="toggle-{{this._id}}">Hide full text</label> \
-                         {{{this._source.text}}} \
-                      </div> \
+                      {{#if this._source.preview}} \
+                          <input class="read-more" type="checkbox" id="toggle-{{this._id}}"> \
+                          <div class="preview"> \
+                             {{{this._source.preview}}}... \
+                             <label class="toggle-label" for="toggle-{{this._id}}">Show full letter</label> \
+                          </div> \
+                          <div class="full-text"> \
+                             <label class="toggle-label" for="toggle-{{this._id}}">Hide full text</label> \
+                             {{{this._source.text}}} \
+                          </div> \
+                      {{else}} \
+                          <i>Could not identify letter text</i> \
+                      {{/if}} \
                   </div> \
                   <div class="panel-footer"> \
                       {{#if this._source.signatures}} \
