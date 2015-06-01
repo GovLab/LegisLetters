@@ -506,18 +506,24 @@ var Facetly = Facetly || (function($) {
                       <a href="{{this._source.url}}" target="_blank">(Original)</a> \
                   </div> \
                   <div class="panel-heading"> \
-                      {{#if this._source.letterDate}} \
+                      {{#if this._source.recipients}} \
                            <b>To:</b> {{this._source.recipients}} \
                       {{else}} \
                           <i>Could not identify recipients</i> \
                       {{/if}} \
                   </div> \
                   <div class="panel-heading"> \
-                      {{#if this._source.letterDate}} \
-                          <b>Dated:</b> {{this._source.letterDate}} \
-                      {{else}} \
-                          <i>Could not determine date</i> \
-                      {{/if}} \
+                          {{#if this._source.letterDate}} \
+                              <b>Letter date:</b> {{this._source.letterDate}} \
+                          {{else}} \
+                              <i>Could not determine letter date</i> \
+                          {{/if}} \
+                          <br> \
+                          {{#if this._source.pressDate}} \
+                              <b>Press date:</b> {{this._source.pressDate}} \
+                          {{else}} \
+                              <i>Could not determine press date</i> \
+                          {{/if}} \
                   </div> \
                   <div class="panel-body"> \
                       {{#if this._source.preview}} \
@@ -535,7 +541,7 @@ var Facetly = Facetly || (function($) {
                       {{/if}} \
                   </div> \
                   <div class="panel-footer"> \
-                      {{#if this._source.signatures}} \
+                      {{#if this._source.hostLegislator}} \
                       <b>Hosted on the site of:</b> {{{this._source.hostLegislator}}} \
                       {{else}} \
                       <i>Unable to determine host legislator from URL.</i> \
