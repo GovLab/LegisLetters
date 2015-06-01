@@ -74,4 +74,8 @@ def get_legislator_from_url(url):
     Obtain the name of a legislator from the URL of the document.
     '''
     parsed = urlparse.urlparse(url)
-    return LEGISLATORS_BY_URL.get(parsed.netloc)
+    legislators = LEGISLATORS_BY_URL.get(parsed.netloc)
+    if not legislators:
+        legislators = LEGISLATORS_BY_URL.get(parsed.netloc.replace('www.', ''))
+    if legislators and len(legislators) == 1:
+        return legislators[0]

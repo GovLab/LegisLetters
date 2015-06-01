@@ -18,12 +18,11 @@ LETTER_IDENTIFIERS = [
     'text of the full letter'
 ]
 END_RECIPIENTS_RE = re.compile(r'(>dear[^:,<]+[^:<]|>to the[^:,<]+[^:<])', re.IGNORECASE)
-END_TEXT_RE = re.compile(
-    r'(we appreciate|sincerely|thank you|look forward to|'
-    r'we hope|respectfully yours|we ask that you|urge you|'
-    r'best wish|we all share|we are committed|keep us informed|'
-    r'for these reasons|we urge'
-    r')([^<]*)', re.IGNORECASE)
+END_TEXT_RE = re.compile(r'(we appreciate|sincerely|thank you|look forward to|'
+                         r'we hope|respectfully yours|we ask that you|urge you|'
+                         r'best wish|we all share|we are committed|keep us informed|'
+                         r'for these reasons|we urge'
+                         r')([^<]*)', re.IGNORECASE)
 #END_TEXT_SECONDARY_RE = re.compile(r'(###)([^:,<]*)', re.IGNORECASE)
 END_SIGNATURES_RE = re.compile(r'cc:|###|<footer|<script|-\d+-', re.IGNORECASE)
 
@@ -41,11 +40,10 @@ def _generate_legislators_for_urls(data):
                 if 'url' in term:
                     parsed = urlparse.urlparse(term['url'])
                     full_name = legislator['name']['official_full']
-                    id_path = parsed.netloc + parsed.path.strip('/')
-                    if id_path in output and output[id_path] != full_name:
-                        raise Exception("Both {} and {} using URL {}".format(
-                            full_name, output[id_path], id_path))
-                    output[id_path] = full_name
+                    id_path = parsed.netloc
+                    if id_path in output and full_name not in output[id_path]:
+                        output[id_path].append(full_name)
+                    output[id_path] = [full_name]
     return output
 
 LEGISLATORS_BY_URL = _generate_legislators_for_urls(LEGISLATORS_DATA)

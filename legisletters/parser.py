@@ -38,6 +38,8 @@ def find_date(text):
             return parser.parse(' '.join(words[i:i+3]))
         except ValueError:
             pass
+    #import pdb
+    #pdb.set_trace()
 
 
 def process_letter(text, identifier, doc_id): #pylint: disable=too-many-locals
