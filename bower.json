@@ -15,14 +15,9 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "1.10.1",
-    "jquery-ui": "1.10.3",
+    "jquery": "1.9",
+    "jquery-ui": "1.9",
     "bootstrap": "latest",
-    "bootstrap-slider": "latest",
-    "moment": "latest",
-    "underscore": "1.4.3",
-    "backbone": "0.9.10",
-    "visualsearch": "latest",
-    "handlebars": "latest"
+    "moment": "latest"
   }
 }

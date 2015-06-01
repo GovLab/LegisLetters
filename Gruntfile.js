@@ -7,11 +7,8 @@ module.exports = function(grunt) {
       all: {
         dest: 'dist/js/bower_deps.js',
         dependencies: {
-          "backbone": ["underscore", "jquery"],
-          "bootstrap-slider": ["bootstrap"],
           "jquery-ui": ["jquery"],
-          "bootstrap": ["jquery-ui"],
-          "visualsearch": ["backbone", "underscore"]
+          "bootstrap": ["jquery-ui"]
         },
         cssDest: 'dist/css/bower_deps.css',
         exclude: [
