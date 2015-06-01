@@ -2,19 +2,38 @@
 /*globals $*/
 $(window).load(function () {
   $('.facet-view-simple').facetview({
-    search_url: '/elasticsearch/legisletters/_search',
+    search_url: '/elasticsearch/legisletters/letter/_search',
     datatype: 'json',
     search_button: true,
     fields: ['text', 'letterDate', 'url', 'signatures', 'recipients',
       'hostLegislator', 'pressDate', 'pdfs'],
     result_display: [ [
-      { "pre" : "<strong>legislator:</strong>:",
+      { "pre" : "<strong>",
         "field": "hostLegislator",
-        "post" : "<br><br>"},
-      { "pre" : "<strong>ID</strong>:",
-        "field": "text",
-        "post" : "<br><br>"}
+        "post" : "</strong><br><br>"},
+      { "field": "text" }
     ] ],
+    results_render_callbacks: {
+      "text": function (record) {
+        var $link = $('<a target="_blank" />'),
+            text,
+            link;
+        $link.attr('href', record.url[0]);
+        $link.text('(See original)');
+        link = $('<div />').append($link).html();
+        if (record._highlight) {
+          if (record._highlight.text) {
+            return '...' + record._highlight.text.join('... ') + '... ' + link;
+          }
+        }
+        if (record.text) {
+          text = record.text[0].split(/\s+/).slice(0, 40).join(' ') + '...';
+        } else {
+          text = '<i>PDF only</i>';
+        }
+        return text + ' ' + link;
+      }
+    },
     search_sortby: [{
       field: 'letterDate',
       display: 'Letter Date'
@@ -22,26 +41,29 @@ $(window).load(function () {
       field: 'hostLegislator',
       display: 'Legislator'
     }],
-    searchbox_fieldselect: [{
-      field: 'hostLegislator',
-      display: 'Legislator'
-    }, {
+    searchbox_fieldselect: [
+   //   {
+   //   field: 'hostLegislator',
+   //   display: 'Legislator'
+   // },
+    {
       field: 'text',
       display: 'Letter Text'
     }],
     facets: [
-      {'field': 'letterDate',
-        "type": "date_histogram",
-        "display": "Letter Date",
-        "sort": "desc",
-        "interval": "month"},
-      //{'field': 'recipients'},
-      {'field': 'hostLegislator', 'display': 'Legislator'}
+    //{
+    //  'field': 'letterDate',
+    //  "type": "date_histogram",
+    //  "display": "Letter Date",
+    //  "sort": "desc",
+    //  "interval": "month"
+    //},
+    {'field': 'hostLegislator', 'display': 'Legislator'}
       //{'field': 'signatures'}
       //{'field': 'publisher.exact', 'size': 101, 'order':'term', 'display': 'Publisher'},
       //{'field': 'author.name.exact', 'display': 'author'},
       //{'field': 'year.exact', 'display': 'year'}
-    ],
+    ]
   });
 });
 

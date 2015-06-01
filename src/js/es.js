@@ -321,7 +321,7 @@ function elasticSearchQuery(params) {
     if (options.page_size !== undefined) {
         qs["size"] = options.page_size
     }
-    
+
     // facets
     if (include_facets) {
         qs['facets'] = {};
@@ -463,6 +463,9 @@ function elasticSearchSuccess(callback) {
             var res = data.hits.hits[item];
             if ("fields" in res) {
                 // partial_fields and script_fields are also included here - no special treatment
+                if ('highlight' in res) {
+                  res.fields._highlight = res.highlight;
+                }
                 resultobj.records.push(res.fields)
             } else {
                 resultobj.records.push(res._source)
@@ -506,6 +509,7 @@ function doElasticSearchQuery(params) {
     var search_url = params.search_url;
     var queryobj = params.queryobj;
     var datatype = params.datatype;
+    queryobj.highlight = {"fields": {"text":{}}};
     
     // serialise the query
     var querystring = serialiseQueryObject(queryobj);
