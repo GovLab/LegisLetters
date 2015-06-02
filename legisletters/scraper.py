@@ -8,6 +8,8 @@ import datetime
 import re
 import requests
 import json
+import os
+import base64
 from bs4 import BeautifulSoup
 
 from legisletters.constants import (ES_INDEX_NAME, ES_RAW_DOC_TYPE,
@@ -56,7 +58,7 @@ def extract_text_from_letter(full_page):
     Raises exception if none of the identifiers work.
     '''
     letter_soup = BeautifulSoup(full_page)
-    for identifier in LETTER_IDENTIFIERS:
+    for identifier in ('full text', 'text of the'):
         matcher = re.compile(identifier, re.IGNORECASE)
         matching_text = letter_soup.find(text=matcher)
 
@@ -78,25 +80,44 @@ def download_url(url, es):
     Download raw content for URL
     '''
     resp = fetch_page(url, session=SESSION)
-    if 'html' not in resp.headers['content-type']:
-        raise Exception("Not HTML (content type {})".format(
+    if 'html' in resp.headers['content-type']:
+        original_html, text_identifier = extract_text_from_letter(resp.text)
+
+        scrape_time = datetime.datetime.now()
+
+        doc_id = get_document_id(url, original_html.encode('utf8'))
+
+        es.index(index=ES_INDEX_NAME,
+                 doc_type=ES_RAW_DOC_TYPE,
+                 id=doc_id,
+                 body={
+                     'url': url,
+                     'html': original_html,
+                     'identifier': text_identifier,
+                     'scrapeTime': scrape_time
+                 })
+    elif 'pdf' in resp.headers['content-type']:
+        encoded = base64.encodestring(resp.content)
+        doc_id = get_document_id(url, encoded)
+
+        scrape_time = datetime.datetime.now()
+
+        es.index(index=ES_INDEX_NAME,
+                 doc_type=ES_RAW_DOC_TYPE,
+                 id=doc_id,
+                 body={
+                     'url': url,
+                     'pdf': {
+                         '_content': encoded,
+                         '_language': 'en',
+                         '_content_type': 'application/pdf'
+                     },
+                     'scrapeTime': scrape_time
+                 })
+
+    else:
+        raise Exception("Not PDF or HTML (content type {})".format(
             resp.headers['content-type']))
-
-    original_html, text_identifier = extract_text_from_letter(resp.text)
-
-    scrape_time = datetime.datetime.now()
-
-    doc_id = get_document_id(url, original_html.encode('utf8'))
-
-    es.index(index=ES_INDEX_NAME,
-             doc_type=ES_RAW_DOC_TYPE,
-             id=doc_id,
-             body={
-                 'url': url,
-                 'html': original_html,
-                 'identifier': text_identifier,
-                 'scrapeTime': scrape_time
-             })
 
 
 if __name__ == '__main__':

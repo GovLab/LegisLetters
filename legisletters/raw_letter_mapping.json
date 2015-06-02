@@ -4,6 +4,9 @@
       "html" : {
         "type" : "string"
       },
+      "pdf": {
+        "type": "attachment"
+      },
       "url" : {
         "type" : "string"
       },

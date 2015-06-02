@@ -15,7 +15,8 @@ REQUEST_HEADERS = {
 LETTER_IDENTIFIERS = [
     'full text of the letter',
     'full text is below',
-    'text of the full letter'
+    'text of the full letter',
+    'text of the letter',
 ]
 END_RECIPIENTS_RE = re.compile(r'(>dear[^:,<]+[^:<]|>to the[^:,<]+[^:<])', re.IGNORECASE)
 END_TEXT_RE = re.compile(r'(we appreciate|sincerely|thank you|look forward to|'
