@@ -35,14 +35,37 @@ def find_date(text):
         if len(words) < i + 2:
             break
         try:
-            return parser.parse(' '.join(words[i:i+3]))
+            try:  # resolve issue with Tuesday, August 26 resolving to this year
+                return parser.parse(' '.join(words[i:i+4]))
+            except ValueError:
+                return parser.parse(' '.join(words[i:i+3]))
         except ValueError:
             pass
     #import pdb
     #pdb.set_trace()
 
 
-def process_letter(text, identifier, doc_id): #pylint: disable=too-many-locals
+def is_duplicate(url):
+    '''
+    Determine whether this letter shares a URL with another document.
+    '''
+    hits = ES.search(index='legisletters',  # pylint: disable=unexpected-keyword-arg
+                     body={"query": {"query_string": {
+                         "query": '"' + url + '"',
+                         "default_field": "url"
+                     }}},
+                     doc_type=ES_RAW_DOC_TYPE)['hits']['hits']
+    return len(hits) > 1
+
+
+def delete_raw_letter(doc_id):
+    '''
+    Delete raw_letter by doc_id
+    '''
+    ES.delete(index='legisletters', id=doc_id, doc_type=ES_RAW_DOC_TYPE)
+
+
+def process_letter(text, identifier, doc_id, url): #pylint: disable=too-many-locals
     '''
     process a letter from its text and known identifier.
 
@@ -65,11 +88,19 @@ def process_letter(text, identifier, doc_id): #pylint: disable=too-many-locals
         recipients1, recipients2, remainder = re.split(END_RECIPIENTS_RE, remainder, maxsplit=1)
         parsed['recipients'] = html2text(recipients1 + recipients2)
     except ValueError:
+
+        # Remove bad scrape from past
+        # if is_duplicate(url):
+        #     delete_raw_letter(doc_id)
+
         LOGGER.warn("Could not identify recipients in %s, aborting", doc_id)
-        if len(remainder) > 200:
-            pass
-            #pdb.set_trace()
-        return parsed
+
+        # If we were able to find PDFs, this is a legit letter, just no text
+        # available
+        if parsed['pdfs']:
+            return parsed
+        else:
+            raise Exception("No text or PDFs")
 
     split = re.split(END_TEXT_RE, remainder)
     if len(split) > 1:
@@ -104,28 +135,40 @@ if __name__ == '__main__':
     ES.indices.put_mapping(index=ES_INDEX_NAME, doc_type=ES_LETTER_DOC_TYPE,
                            body=json.load(open('legisletters/letter_mapping.json', 'r')))
 
-    for doc in ES.search(size=1000, index='legisletters',  # pylint: disable=unexpected-keyword-arg
-                         doc_type=ES_RAW_DOC_TYPE)['hits']['hits']:
-        try:
-            source = doc['_source']
-            url = source['url']
-            if '/searchresults' in url.lower():
-                LOGGER.info("--SKIP: %s (seems to be a search page)", doc['_id'])
-                continue
+    OFFSET = 0
+    QUERY_SIZE = 100
+    while True:
+        DOCS = ES.search(size=QUERY_SIZE, index='legisletters',  # pylint: disable=unexpected-keyword-arg
+                         from_=OFFSET, doc_type=ES_RAW_DOC_TYPE)['hits']['hits']
 
-            parsed_letter = process_letter(source['html'], source['identifier'], doc['_id'])
-            parsed_letter['url'] = url
-            parsed_letter['hostLegislator'] = get_legislator_from_url(url)
+        if len(DOCS) == 0:
+            break
 
+        for doc in DOCS:
             try:
-                ES.delete(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'])
-            except elasticsearch.NotFoundError:
-                pass
-            ES.create(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'], body=parsed_letter)
-            LOGGER.info("++OK: %s", doc['_id'])
-        except Exception as err:  #pylint: disable=broad-except
-            traceback.print_exc(err)
-            LOGGER.error("--ERR: %s (%s)", doc['_id'], err)
-            #pdb.set_trace()
+                source = doc['_source']
+                url_ = source['url']
+                if '/searchresults' in url_.lower():
+                    LOGGER.info("--SKIP: %s (seems to be a search page)", doc['_id'])
+                    continue
+
+                parsed_letter = process_letter(source['html'],
+                                               source['identifier'],
+                                               doc['_id'], url_)
+                parsed_letter['url'] = url_
+                parsed_letter['hostLegislator'] = get_legislator_from_url(url_)
+
+                try:
+                    ES.delete(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'])
+                except elasticsearch.NotFoundError:
+                    pass
+                ES.create(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'], body=parsed_letter)
+                LOGGER.info("++OK: %s", doc['_id'])
+            except Exception as err:  #pylint: disable=broad-except
+                traceback.print_exc(err)
+                LOGGER.error("--ERR: %s (%s)", doc['_id'], err)
+                #pdb.set_trace()
+
+        OFFSET += QUERY_SIZE
 
 # "stopwords": ["the","to","and","of","in","a","that","for","this","you","is","with","as","on","are","we","have","by","your","be","has","from","it","an","these","not","our","sincerely","will","or","at","their","would","more","which","other","its","all","if","been","also","ensure","provide","any","urge","than","while","should","thank","can","they","such","was","about","including","but","new","work","who","many","write","one","united","know","so","were","year","over","may","important","under","no","time","only","department","act","look","there","regarding","make","well","some","years","could","those","efforts","use","must","ask","into","when","do","1","i","issue","address","continue","believe","since","matter","how","further","what","process","attention","through","take","critical","significant","made","working","country","both","states","forward","support","request","u.s","state","federal","recent","congress","government","american","information","law","public","national","administration","writing","against","help","given","need","additional","during","long","current","however","most","concerns","without","response","consideration","future","them","out","two","does","policy","last","action","between","protect","us","first","because","whether","million","across","services","used","number","appreciate","already","understand","before","had","full","people","service","order","concerned","recently","now","issues","concern","being","report","following","strong","consider","addition","up","like","impact","within","2","3","4","5","6","7","8","9","even","possible","office","system","part","clear","after","review","percent","necessary","program","please","based","several","americans","actions","serious","questions","plan","officials","families","committee","fully","end","according","proposed","three"] # pylint: disable=line-too-long

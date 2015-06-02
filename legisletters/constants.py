@@ -18,7 +18,8 @@ LETTER_IDENTIFIERS = [
     'text of the full letter',
     'text of the letter',
 ]
-END_RECIPIENTS_RE = re.compile(r'(>dear[^:,<]+[^:<]|>to the[^:,<]+[^:<])', re.IGNORECASE)
+END_RECIPIENTS_RE = re.compile(r'(>\W*dear[^:,<]+[^:<]|>\W*to the[^:,<]+[^:<]|'
+                               r'>\W*mrs?\.[^:,]+[:,]\s*<)', re.IGNORECASE)
 END_TEXT_RE = re.compile(r'(we appreciate|sincerely|thank you|look forward to|'
                          r'we hope|respectfully yours|we ask that you|urge you|'
                          r'best wish|we all share|we are committed|keep us informed|'
