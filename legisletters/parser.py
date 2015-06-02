@@ -6,7 +6,6 @@ import re
 import traceback
 import json
 import elasticsearch
-#import pdb
 
 from bs4 import BeautifulSoup
 from dateutil import parser
@@ -19,9 +18,6 @@ from legisletters.utils import (html2text, get_logger, get_index,
                                 get_legislator_from_url)
 
 
-RECIPIENTS, TEXT, SIGNATURES, ATTACHMENTS = ('recipients', 'text',
-                                             'signatures', 'attachments')
-
 LOGGER = get_logger(__name__)
 NON_LETTERS = re.compile(r'\W+')
 
@@ -30,19 +26,25 @@ def find_date(text):
     '''
     Find a date in a goop of text.
     '''
-    words = NON_LETTERS.split(text)
-    for i in xrange(0, len(words)):
-        if len(words) < i + 2:
-            break
-        try:
-            try:  # resolve issue with Tuesday, August 26 resolving to this year
-                return parser.parse(' '.join(words[i:i+4]))
+    for line in text.split('\n'):
+        line = line.strip()
+        words = NON_LETTERS.split(line)
+        for i in xrange(0, 4):
+            if len(words[i:i+4]) < 3:
+                break
+            try:
+                try:  # resolve issue with Tuesday, August 26 resolving to this year
+                    four_words = ' '.join(words[i:i+4]).strip()
+                    if four_words:
+                        return parser.parse(four_words)
+                except ValueError:
+                    three_words = ' '.join(words[i:i+3]).strip()
+                    if three_words:
+                        return parser.parse(three_words)
             except ValueError:
-                return parser.parse(' '.join(words[i:i+3]))
-        except ValueError:
-            pass
-    #import pdb
-    #pdb.set_trace()
+                pass
+        #import pdb
+        #pdb.set_trace()
 
 
 def is_duplicate(url):
@@ -71,6 +73,7 @@ def process_letter(text, identifier, doc_id, url): #pylint: disable=too-many-loc
 
     returns None if the letter can't be processed.
     '''
+
     parsed = {}
 
     matcher = re.compile(identifier, re.IGNORECASE)
@@ -82,7 +85,15 @@ def process_letter(text, identifier, doc_id, url): #pylint: disable=too-many-loc
 
     press_release, remainder = matcher.split(text, maxsplit=1)
     parsed[u'pressReleaseText'] = html2text(press_release)
-    parsed[u'pressDate'] = find_date(press_release)
+
+    if url in ('http://pelosi.house.gov/sites/pelosi.house.gov/files/pressarchives/releases/Nov03/DemLeadersLettertoSpeaker110503.html', # coming up with year 2015 instead of 2003
+               'http://grijalva.house.gov/index.cfm?sectionid=13&parentid=5&sectiontree=&itemid=771', #coming up with 2015 instead of 2010
+              ):
+        #import pdb
+        #pdb.set_trace()
+        pass
+
+    parsed[u'pressDate'] = find_date(parsed[u'pressReleaseText'])
 
     try:
         recipients1, recipients2, remainder = re.split(END_RECIPIENTS_RE, remainder, maxsplit=1)
@@ -112,8 +123,8 @@ def process_letter(text, identifier, doc_id, url): #pylint: disable=too-many-loc
         #pdb.set_trace()
         return parsed
 
-    parsed['letterDate'] = find_date(letter_text)
-    parsed['text'] = html2text(letter_text)
+    parsed['letterDate'] = find_date(parsed['recipients'])
+    parsed['text'] = re.sub(r'\W+', '', html2text(letter_text))
 
     try:
         signatures, remainder = re.split(END_SIGNATURES_RE, remainder, maxsplit=1)

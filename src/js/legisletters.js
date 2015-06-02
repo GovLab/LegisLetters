@@ -1,5 +1,5 @@
 /*jshint browser:true, camelcase: false*/
-/*globals $*/
+/*globals $, moment*/
 $(window).load(function () {
   $('.facet-view-simple').facetview({
     search_url: '/elasticsearch/legisletters/letter/_search',
@@ -7,15 +7,22 @@ $(window).load(function () {
     search_button: true,
     fields: ['text', 'letterDate', 'url', 'signatures', 'recipients',
       'hostLegislator', 'pressDate', 'pdfs'],
-    result_display: [ [
-      { "pre" : "<strong>",
+    result_display: [ [ /*{
+        "pre" : "<strong>",
         "field": "hostLegislator",
-        "post" : "</strong><br><br>"},
-      { "field": "text" }
-    ] ],
+        "post" : "</strong><br><br>"
+    }, {
+        "pre": "<strong>Signatures:</strong>",
+        "field": "signatures",
+        "post": "<br><br>"
+    },*/ {
+        "field": "text"
+    } ] ],
     results_render_callbacks: {
       "text": function (record) {
         var $link = $('<a target="_blank" />'),
+            date = record.letterDate || record.pressDate,
+            legislator = record.hostLegislator,
             text,
             link;
         $link.attr('href', record.url[0]);
@@ -23,13 +30,25 @@ $(window).load(function () {
         link = $('<div />').append($link).html();
         if (record._highlight) {
           if (record._highlight.text) {
-            return '...' + record._highlight.text.join('... ') + '... ' + link;
+            text = '...' + record._highlight.text.join('... ') + '... ';
           }
         }
-        if (record.text) {
-          text = record.text[0].split(/\s+/).slice(0, 40).join(' ') + '...';
-        } else {
-          text = '<i>PDF only</i>';
+        if (!text) {
+          if (record.text) {
+            text = record.text[0].split(/\s+/).slice(0, 40).join(' ') + '...';
+          } else {
+            text = '<i>PDF only</i>';
+          }
+        }
+        if (date) {
+          date = new moment(date[0]).format("MMMM D, YYYY");
+          text = '<i>' + date + "</i> " + text;
+        }
+        if (!legislator && record.signatures) {
+          legislator = record.signatures[0].trim().split('\n')[0];
+        }
+        if (legislator) {
+          text = '<strong>' + legislator + '</strong><br><br>' + text;
         }
         return text + ' ' + link;
       }
