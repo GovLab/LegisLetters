@@ -86,6 +86,11 @@ def get_legislator_from_url(url, date):
     else:
         _, _, term = legislator['terms'][-1]
 
+    if term['type'] == 'sen':
+        term['type'] = 'Senate'
+    elif term['type'] == 'rep':
+        term['type'] = 'House of Representatives'
+
     return {
         'name': legislator['name'],
         'bio': legislator['bio'],

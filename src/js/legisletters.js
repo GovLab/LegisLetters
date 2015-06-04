@@ -62,7 +62,8 @@ $(window).load(function () {
           href: legislator.term.url,
           target: '_blank'
         }).append($('<img />').attr('src', imgSrc)));
-        $imgPanel.append($('<div>' + legislatorName + ' (' + description + ')</div>'));
+        $imgPanel.append(
+            $('<div>' + legislatorName + ' (' + description + ')</div>'));
 
         return $('<div />').append($imgPanel).html() + text + ' ' + link;
       }
@@ -91,10 +92,23 @@ $(window).load(function () {
     //  "sort": "desc",
     //  "interval": "month"
     //},
-    {'field': 'hostLegislator.name.official_full', 'display': 'Legislator'},
-    {'field': 'hostLegislator.term.party', 'display': 'Party'},
-    {'field': 'hostLegislator.term.type', 'display': 'Body'},
-    {'field': 'hostLegislator.term.state', 'display': 'State'}
+    {field: 'hostLegislator.term.type',
+     open: true,
+     display: 'Body'},
+    {field: 'hostLegislator.term.party',
+     open: true,
+     display: 'Party'},
+    {field: 'hostLegislator.name.official_full',
+     open: true,
+     display: 'Legislator'},
+    {field: 'hostLegislator.term.state', size: 50, display: 'State'},
+    {field: 'text', display: 'Text'},
+    {field: 'letterDate',
+     type: 'date_histogram',
+     sort: 'desc',
+     display: 'Date',
+     interval: 'month',
+     short_display: 30}
       //{'field': 'signatures'}
       //{'field': 'publisher.exact', 'size': 101, 'order':'term', 'display': 'Publisher'},
       //{'field': 'author.name.exact', 'display': 'author'},
