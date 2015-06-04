@@ -116,7 +116,7 @@ def process_letter(text, identifier, doc_id): #pylint: disable=too-many-locals
         return parsed
 
     parsed['letterDate'] = find_date(parsed['recipients'])
-    parsed['text'] = re.sub(r'\W+', '', html2text(letter_text))
+    parsed['text'] = re.sub(r'\W+', ' ', html2text(letter_text))
 
     try:
         signatures, remainder = re.split(END_SIGNATURES_RE, remainder, maxsplit=1)

@@ -44,3 +44,12 @@ h4 {
 em {
   font-weight: bold;
 }
+
+.legislator-img-panel {
+
+}
+
+.legislator-img-panel img {
+  width: 75%;
+  height: 75%;
+}

@@ -5,8 +5,8 @@ $(window).load(function () {
     search_url: '/elasticsearch/legisletters/letter/_search',
     datatype: 'json',
     search_button: true,
-    fields: ['text', 'letterDate', 'url', 'signatures', 'recipients',
-      'hostLegislator', 'pressDate', 'pdfs'],
+    /*fields: ['text', 'letterDate', 'url', 'signatures', 'recipients',
+      'hostLegislator.', 'pressDate', 'pdfs'],*/
     result_display: [ [ {
         "field": "text"
     } ] ],
@@ -15,41 +15,63 @@ $(window).load(function () {
         var $link = $('<a target="_blank" />'),
             date = record.letterDate || record.pressDate,
             legislator = record.hostLegislator,
+            bioguide = legislator.id.bioguide,
+            legislatorName = legislator.name.official_full,
+            description = legislator.term.party.substr(0, 1) + '-' + legislator.term.state,
+            $imgPanel = $('<div class="pull-left legislator-img-panel" />'),
+            imgSrc = 'http://bioguide.congress.gov/bioguide/photo/' + bioguide.substr(0, 1) + '/' + bioguide + '.jpg',
+            section,
             text,
             link;
-        $link.attr('href', record.url[0]);
+        $link.attr('href', record.url);
         $link.text('(See original)');
         link = $('<div />').append($link).html();
         if (record._highlight) {
-          if (record._highlight.text) {
-            text = '...' + record._highlight.text.join('... ') + '... ';
+          for (var k in record._highlight) {
+            if (record._highlight.hasOwnProperty(k)) {
+              if (k === 'text') {
+                section = 'Letter text';
+              } else if (k === 'pressReleaseText') {
+                section = 'Press release';
+              } else if (k === 'signatures') {
+                section = 'Signatures';
+              } else if (k === 'recipients') {
+                section = 'Recipients';
+              }
+              text = '<strong>' + section + ':</strong> ...' +
+                  record._highlight[k].join('... ') + '... ';
+            }
           }
         }
         if (!text) {
           if (record.text) {
-            text = record.text[0].split(/\s+/).slice(0, 40).join(' ') + '...';
+            text = record.text.split(/\s+/).slice(0, 100).join(' ') + '...';
           } else {
             text = '<i>PDF only</i>';
           }
         }
         if (date) {
-          date = new moment(date[0]).format("MMMM D, YYYY");
-          text = '<i>' + date + "</i> " + text;
+          date = new moment(date).format("MMMM D, YYYY");
+          text = '<i>' + date + "</i><br>" + text;
         }
-        if (!legislator && record.signatures) {
-          legislator = record.signatures[0].trim().split('\n')[0];
-        }
-        if (legislator) {
-          text = '<strong>' + legislator + '</strong><br><br>' + text;
-        }
-        return text + ' ' + link;
+        //if (!legislator && record.signatures) {
+        //  legislator = record.signatures.trim().split('\n');
+        //}
+
+        $imgPanel.append($('<a />').attr({
+          href: legislator.term.url,
+          target: '_blank'
+        }).append($('<img />').attr('src', imgSrc)));
+        $imgPanel.append($('<div>' + legislatorName + ' (' + description + ')</div>'));
+
+        return $('<div />').append($imgPanel).html() + text + ' ' + link;
       }
     },
     search_sortby: [{
       field: 'letterDate',
       display: 'Letter Date'
     }, {
-      field: 'hostLegislator',
+      field: 'hostLegislator.name.official_full',
       display: 'Legislator'
     }],
     searchbox_fieldselect: [
@@ -69,7 +91,10 @@ $(window).load(function () {
     //  "sort": "desc",
     //  "interval": "month"
     //},
-    {'field': 'hostLegislator', 'display': 'Legislator'}
+    {'field': 'hostLegislator.name.official_full', 'display': 'Legislator'},
+    {'field': 'hostLegislator.term.party', 'display': 'Party'},
+    {'field': 'hostLegislator.term.type', 'display': 'Body'},
+    {'field': 'hostLegislator.term.state', 'display': 'State'}
       //{'field': 'signatures'}
       //{'field': 'publisher.exact', 'size': 101, 'order':'term', 'display': 'Publisher'},
       //{'field': 'author.name.exact', 'display': 'author'},

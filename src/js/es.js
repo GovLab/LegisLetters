@@ -468,6 +468,9 @@ function elasticSearchSuccess(callback) {
                 }
                 resultobj.records.push(res.fields)
             } else {
+                if ('highlight' in res) {
+                  res._source._highlight = res.highlight;
+                }
                 resultobj.records.push(res._source)
             }
         }
@@ -509,7 +512,13 @@ function doElasticSearchQuery(params) {
     var search_url = params.search_url;
     var queryobj = params.queryobj;
     var datatype = params.datatype;
-    queryobj.highlight = {"fields": {"text":{}}};
+    queryobj.highlight = {"fields": {
+        "_all": { "fragment_size": 150 },
+        "text": {},
+        "pressReleaseText": {},
+        "signatures": {},
+        "recipients": {}
+    }};
     
     // serialise the query
     var querystring = serialiseQueryObject(queryobj);
