@@ -7,15 +7,7 @@ $(window).load(function () {
     search_button: true,
     fields: ['text', 'letterDate', 'url', 'signatures', 'recipients',
       'hostLegislator', 'pressDate', 'pdfs'],
-    result_display: [ [ /*{
-        "pre" : "<strong>",
-        "field": "hostLegislator",
-        "post" : "</strong><br><br>"
-    }, {
-        "pre": "<strong>Signatures:</strong>",
-        "field": "signatures",
-        "post": "<br><br>"
-    },*/ {
+    result_display: [ [ {
         "field": "text"
     } ] ],
     results_render_callbacks: {
