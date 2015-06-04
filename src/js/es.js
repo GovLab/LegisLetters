@@ -336,7 +336,8 @@ function elasticSearchQuery(params) {
             
             var facet = {};
             if (defn.type === "terms") {
-                facet["terms"] = {"field" : defn["field"], "size" : size, "order" : defn["order"]}
+                // ADDED 'exclude'
+                facet["terms"] = {"field" : defn["field"], "size" : size, "order" : defn["order"], "exclude": defn["exclude"]}
             } else if (defn.type === "range") {
                 var ranges = [];
                 for (var r=0; r < defn["range"].length; r=r+1) {

@@ -102,13 +102,15 @@ $(window).load(function () {
      open: true,
      display: 'Legislator'},
     {field: 'hostLegislator.term.state', size: 50, display: 'State'},
-    {field: 'text', display: 'Text'},
-    {field: 'letterDate',
+    {field: 'text',
+     exclude: ["the","to","and","of","in","a","that","for","this","you","is","with","as","on","are","we","have","by","your","be","has","from","it","an","these","not","our","sincerely","will","or","at","their","would","more","which","other","its","all","if","been","also","ensure","provide","any","urge","than","while","should","thank","can","they","such","was","about","including","but","new","work","who","many","write","one","united","know","so","were","year","over","may","important","under","no","time","only","department","act","look","there","regarding","make","well","s"],
+     display: 'Text'}
+    /*, {field: 'letterDate',
      type: 'date_histogram',
      sort: 'desc',
      display: 'Date',
      interval: 'month',
-     short_display: 30}
+     short_display: 30}*/
       //{'field': 'signatures'}
       //{'field': 'publisher.exact', 'size': 101, 'order':'term', 'display': 'Publisher'},
       //{'field': 'author.name.exact', 'display': 'author'},
