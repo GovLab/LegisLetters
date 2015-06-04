@@ -67,7 +67,7 @@ def delete_raw_letter(doc_id):
     ES.delete(index='legisletters', id=doc_id, doc_type=ES_RAW_DOC_TYPE)
 
 
-def process_letter(text, identifier, doc_id, url): #pylint: disable=too-many-locals
+def process_letter(text, identifier, doc_id): #pylint: disable=too-many-locals
     '''
     process a letter from its text and known identifier.
 
@@ -85,14 +85,6 @@ def process_letter(text, identifier, doc_id, url): #pylint: disable=too-many-loc
 
     press_release, remainder = matcher.split(text, maxsplit=1)
     parsed[u'pressReleaseText'] = html2text(press_release)
-
-    if url in ('http://pelosi.house.gov/sites/pelosi.house.gov/files/pressarchives/releases/Nov03/DemLeadersLettertoSpeaker110503.html', # coming up with year 2015 instead of 2003
-               'http://grijalva.house.gov/index.cfm?sectionid=13&parentid=5&sectiontree=&itemid=771', #coming up with 2015 instead of 2010
-              ):
-        #import pdb
-        #pdb.set_trace()
-        pass
-
     parsed[u'pressDate'] = find_date(parsed[u'pressReleaseText'])
 
     try:
@@ -165,9 +157,10 @@ if __name__ == '__main__':
 
                 parsed_letter = process_letter(source['html'],
                                                source['identifier'],
-                                               doc['_id'], url_)
+                                               doc['_id'])
                 parsed_letter['url'] = url_
-                parsed_letter['hostLegislator'] = get_legislator_from_url(url_)
+                date = parsed_letter.get('letterDate', parsed_letter.get('pressDate'))
+                parsed_letter['hostLegislator'] = get_legislator_from_url(url_, date)
 
                 try:
                     ES.delete(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'])

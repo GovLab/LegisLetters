@@ -24,8 +24,164 @@
         "type" : "string"
       },
       "hostLegislator": {
-        "type" : "string",
-        "index": "not_analyzed"
+        "properties": {
+          "id": {
+            "properties": {
+              "bioguide": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "thomas": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "lis": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "govtrack": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "opensecrets": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "votesmart": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "fec": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "cspan": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "wikipedia": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "house_history": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "ballotpedia": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "maplight": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "washington_post": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "icpsr": {
+                "type": "string",
+                "index": "not_analyzed"
+              }
+            }
+          },
+          "name": {
+            "properties": {
+              "first": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "last": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "official_full": {
+                "type": "string",
+                "index": "not_analyzed"
+              }
+            }
+          },
+          "bio": {
+            "properties": {
+              "birthday": {
+                "type" : "date",
+                "format" : "dateOptionalTime"
+              },
+              "gender": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "religion": {
+                "type": "string",
+                "index": "not_analyzed"
+              }
+            }
+          },
+          "term": {
+            "properties": {
+              "type": {
+                "type" : "string",
+                "index" : "not_analyzed"
+              },
+              "start": {
+                "type" : "date",
+                "format" : "dateOptionalTime"
+              },
+              "end": {
+                "type" : "date",
+                "format" : "dateOptionalTime"
+              },
+              "state": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "district": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "party": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "url": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "address": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "phone": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "fax": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "contact_form": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "office": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "class": {
+                "type": "integer",
+                "index": "not_analyzed"
+              },
+              "state_rank": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "rss_url": {
+                "type": "string",
+                "index": "not_analyzed"
+              }
+            }
+          }
+        }
       },
       "text" : {
         "type" : "string"

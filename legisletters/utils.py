@@ -69,13 +69,27 @@ def html2text(html):
     return BeautifulSoup(html).get_text('\n').replace(u'\xa0', ' ')
 
 
-def get_legislator_from_url(url):
+def get_legislator_from_url(url, date):
     '''
-    Obtain the name of a legislator from the URL of the document.
+    Obtain legislator info based off of url or date.  If date is None, then the
+    most recent term is used.
     '''
-    parsed = urlparse.urlparse(url)
-    legislators = LEGISLATORS_BY_URL.get(parsed.netloc)
-    if not legislators:
-        legislators = LEGISLATORS_BY_URL.get(parsed.netloc.replace('www.', ''))
-    if legislators and len(legislators) == 1:
-        return legislators[0]
+    #if not legislators:
+    #    legislators = LEGISLATORS_BY_URL.get(parsed.netloc.replace('www.', ''))
+
+    legislator = LEGISLATORS_BY_URL[urlparse.urlparse(url).netloc]
+
+    if date:
+        for start, end, term in legislator['terms']:
+            if date >= start and date < end:
+                break
+    else:
+        _, _, term = legislator['terms'][-1]
+
+    return {
+        'name': legislator['name'],
+        'bio': legislator['bio'],
+        # http://bioguide.congress.gov/bioguide/photo/S/S000033.jpg
+        'id': legislator['id'],
+        'term': term
+    }
