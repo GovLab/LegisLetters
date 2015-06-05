@@ -9,16 +9,19 @@ import re
 import requests
 import json
 import base64
+import time
+import random
 from bs4 import BeautifulSoup
 
-from legisletters.constants import (ES_INDEX_NAME, ES_RAW_DOC_TYPE,
+from legisletters.constants import (ES_INDEX_NAME, ES_RAW_DOC_TYPE, UA_STRINGS,
                                     LETTER_IDENTIFIERS, LEGISLATORS_BY_URL)
 from legisletters.utils import get_logger, fetch_page, get_document_id, get_index
 
 LOGGER = get_logger(__name__)
-
-START = 0
-SESSION = requests.session()
+SESSIONS = []
+for ua_string in UA_STRINGS:
+    SESSIONS.append(requests.session())
+    SESSIONS[-1].headers.update({'User-Agent': ua_string})
 
 
 def scrape_google(query, site, start=0):
@@ -32,7 +35,15 @@ def scrape_google(query, site, start=0):
     url = "https://www.google.com/search?q=%s+%s&start=%d" % (entity, site_restrict, start)
     LOGGER.info("Processing %s", url)
     results = []
-    response = fetch_page(url, session=SESSION)
+    holdoff = 120
+    while True:
+        response = fetch_page(url, session=random.choice(SESSIONS))
+        if 'Our systems have detected unusual traffic from your computer network.' in response.text:
+            LOGGER.warn("Rate-limited by Google, waiting %s seconds", holdoff)
+            time.sleep(holdoff)
+            holdoff *= 2
+        else:
+            break
     if "No results found for" in response.text:
         return results, True
     soup = BeautifulSoup(response.text)
@@ -82,7 +93,7 @@ def download_url(url, elastic):
     '''
     Download raw content for URL
     '''
-    resp = fetch_page(url, session=SESSION)
+    resp = fetch_page(url, session=random.choice(SESSIONS))
     if 'html' in resp.headers['content-type']:
         original_html, text_identifier = extract_text_from_letter(resp.text)
 
@@ -125,12 +136,13 @@ def download_url(url, elastic):
 
 if __name__ == '__main__':
 
-    SESSION.get('https://www.google.com/foo')  # get some cookies in the session
+    #SESSION.get('https://www.google.com/foo')  # get some cookies in the session
     ES = get_index(ES_INDEX_NAME, LOGGER)
     ES.indices.put_mapping(index=ES_INDEX_NAME, doc_type=ES_RAW_DOC_TYPE,
                            body=json.load(open('legisletters/raw_letter_mapping.json', 'r')))
 
-    for site_ in LEGISLATORS_BY_URL.keys():
+    for site_ in LEGISLATORS_BY_URL.keys()[100:]:
+    #for site_ in ('www.schatz.senate.gov', ):
         for letter_identifier in LETTER_IDENTIFIERS:
             LOGGER.info('Scraping "%s" from Google', letter_identifier)
             for i in range(0, 50):
@@ -144,7 +156,9 @@ if __name__ == '__main__':
                         traceback.print_exc(err)
                         LOGGER.error("--ERR: %s (%s)", u, err)
 
+                sleeptime = random.randint(30, 60)
+                LOGGER.info('Sleeping for %s seconds', sleeptime)
+                time.sleep(sleeptime)
                 if is_last_page:
                     LOGGER.info('Finishing "%s" after %s pages', letter_identifier, i)
                     break
-

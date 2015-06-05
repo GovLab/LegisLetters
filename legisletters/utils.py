@@ -32,7 +32,9 @@ def get_logger(name):
     '''
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
-    logger.addHandler(logging.StreamHandler(sys.stderr))
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(logging.Formatter('%(asctime)-15s %(message)s'))
+    logger.addHandler(handler)
     return logger
 
 
