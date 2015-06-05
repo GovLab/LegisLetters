@@ -19,6 +19,7 @@ LETTER_IDENTIFIERS = [
     'full text is below',
     'text of the full letter',
     'text of the letter',
+    'click here to view the letter',
 ]
 END_RECIPIENTS_RE = re.compile(r'(>\W*dear[^:,<]+[^:<]|>\W*to the[^:,<]+[^:<]|'
                                r'>\W*mrs?\.[^:,]+[:,]\s*<)', re.IGNORECASE)

@@ -8,17 +8,15 @@ import datetime
 import re
 import requests
 import json
-import os
 import base64
 from bs4 import BeautifulSoup
 
 from legisletters.constants import (ES_INDEX_NAME, ES_RAW_DOC_TYPE,
-                                    LETTER_IDENTIFIERS)
+                                    LETTER_IDENTIFIERS, LEGISLATORS_BY_URL)
 from legisletters.utils import get_logger, fetch_page, get_document_id, get_index
 
 LOGGER = get_logger(__name__)
 
-SITE = "house.gov"
 START = 0
 SESSION = requests.session()
 
@@ -26,6 +24,8 @@ SESSION = requests.session()
 def scrape_google(query, site, start=0):
     '''
     Scrape a query from google for a specific site.
+
+    Returns a list of results and a bool of whether this is the last page.
     '''
     entity = urllib.quote(query)
     site_restrict = urllib.quote('site:%s' % site)
@@ -33,10 +33,13 @@ def scrape_google(query, site, start=0):
     LOGGER.info("Processing %s", url)
     results = []
     response = fetch_page(url, session=SESSION)
+    if "No results found for" in response.text:
+        return results, True
     soup = BeautifulSoup(response.text)
     results.extend([
         process_url_from_google(t.a['href']) for t in soup.findAll('h3', attrs={'class': 'r'})])
-    return results
+    is_last_page_ = 'Next</span' not in response.text
+    return results, is_last_page_
 
 
 def process_url_from_google(url):
@@ -75,7 +78,7 @@ def extract_text_from_letter(full_page):
     raise Exception("Cannot identify letter in text")
 
 
-def download_url(url, es):
+def download_url(url, elastic):
     '''
     Download raw content for URL
     '''
@@ -87,33 +90,33 @@ def download_url(url, es):
 
         doc_id = get_document_id(url, original_html.encode('utf8'))
 
-        es.index(index=ES_INDEX_NAME,
-                 doc_type=ES_RAW_DOC_TYPE,
-                 id=doc_id,
-                 body={
-                     'url': url,
-                     'html': original_html,
-                     'identifier': text_identifier,
-                     'scrapeTime': scrape_time
-                 })
+        elastic.index(index=ES_INDEX_NAME,
+                      doc_type=ES_RAW_DOC_TYPE,
+                      id=doc_id,
+                      body={
+                          'url': url,
+                          'html': original_html,
+                          'identifier': text_identifier,
+                          'scrapeTime': scrape_time
+                      })
     elif 'pdf' in resp.headers['content-type']:
         encoded = base64.encodestring(resp.content)
         doc_id = get_document_id(url, encoded)
 
         scrape_time = datetime.datetime.now()
 
-        es.index(index=ES_INDEX_NAME,
-                 doc_type=ES_RAW_DOC_TYPE,
-                 id=doc_id,
-                 body={
-                     'url': url,
-                     'pdf': {
-                         '_content': encoded,
-                         '_language': 'en',
-                         '_content_type': 'application/pdf'
-                     },
-                     'scrapeTime': scrape_time
-                 })
+        elastic.index(index=ES_INDEX_NAME,
+                      doc_type=ES_RAW_DOC_TYPE,
+                      id=doc_id,
+                      body={
+                          'url': url,
+                          'pdf': {
+                              '_content': encoded,
+                              '_language': 'en',
+                              '_content_type': 'application/pdf'
+                          },
+                          'scrapeTime': scrape_time
+                      })
 
     else:
         raise Exception("Not PDF or HTML (content type {})".format(
@@ -127,18 +130,21 @@ if __name__ == '__main__':
     ES.indices.put_mapping(index=ES_INDEX_NAME, doc_type=ES_RAW_DOC_TYPE,
                            body=json.load(open('legisletters/raw_letter_mapping.json', 'r')))
 
-    for letter_identifier in LETTER_IDENTIFIERS:
-        LOGGER.info('Scraping "%s" from Google', letter_identifier)
-        for i in range(0, 50):
-            urls = scrape_google('"{}"'.format(letter_identifier), SITE, int(10*i))
-            if len(urls) == 0:
-                LOGGER.info('Finishing "%s" after %s pages', letter_identifier, i)
-                break
+    for site_ in LEGISLATORS_BY_URL.keys():
+        for letter_identifier in LETTER_IDENTIFIERS:
+            LOGGER.info('Scraping "%s" from Google', letter_identifier)
+            for i in range(0, 50):
+                urls, is_last_page = scrape_google(
+                    '"{}"'.format(letter_identifier), site_, int(10*i))
+                for u in urls:
+                    try:
+                        download_url(u, ES)
+                        LOGGER.info("++OK: %s", u)
+                    except Exception as err:  #pylint: disable=broad-except
+                        traceback.print_exc(err)
+                        LOGGER.error("--ERR: %s (%s)", u, err)
 
-            for u in urls:
-                try:
-                    download_url(u, ES)
-                    LOGGER.info("++OK: %s", u)
-                except Exception as err:  #pylint: disable=broad-except
-                    traceback.print_exc(err)
-                    LOGGER.error("--ERR: %s (%s)", u, err)
+                if is_last_page:
+                    LOGGER.info('Finishing "%s" after %s pages', letter_identifier, i)
+                    break
+
