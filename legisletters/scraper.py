@@ -134,6 +134,16 @@ def download_url(url, elastic):
             resp.headers['content-type']))
 
 
+# Grabbing from random house/senate websites:
+# 1. look for input[name=q]
+# 2. grab the action URL/request type from parent form
+# 3. grab all other inputs & their default values
+# 4. make the request
+# 5. ? look for all links whose text starts with a digit?  could be rough because digit could have separate format within there...
+# 6. ? search for link 'next'
+# 7. ? keep clicking on 'next'
+
+
 if __name__ == '__main__':
 
     #SESSION.get('https://www.google.com/foo')  # get some cookies in the session
