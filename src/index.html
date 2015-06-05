@@ -6,17 +6,83 @@
     <link rel="stylesheet" type="text/css" href="css/style.css" />
     <link rel="stylesheet" type="text/css" href="css/facetview.css" />
     <link rel="stylesheet" type="text/css" href="css/bower_deps.css" />
-    <title>LegisLetters</title>
+    <title>Legisletters Beta</title>
 </head>
+
+<div id="aboutModal" class="modal fade">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">What is the Legisletters project?</h3>
+      </div>
+      <div class="modal-body">
+
+<p>Members of Congress send formal “oversight” letters to cabinet departments and independent agencies on a dizzying array of topics. These letters can contain many different kinds of “asks” of the executive branch including:</p>
+
+<ul>
+    <li>issuing or revising a particular regulation;
+
+    <li>changing an interpretation of an existing rule;
+
+    <li>urging a change in contracting practices;
+
+    <li>requesting a report;
+
+    <li>initiating an investigation;
+
+    <li>urging the appointment or ouster of certain officials; and
+
+    <li>awarding funds to a particular project.
+</ul>
+
+<p>Such communication is a core component of Congress’s oversight work and a key way for Members to shape policy. And yet, there exists no simple, accessible way to discover which Members have written which agencies on which issues, and with what outcomes. The Legisletters project aims to fix that by creating a living, searchable archive of the formal letters that Members of Congress send.</p>
+
+<h4>What is our method?</h4>
+
+<p>An automatic web crawler gathers and classifies these letters from legislators' websites.</p>
+
+<!--[Talk about the bot as our beta approach + long-term vision of making this something people can upload their own / other letters to.]-->
+
+<h4>Who is this for?</h4>
+
+<p>Our hope is that the Legisletters archive proves helpful for a wide range of users, from Congressional staff themselves to voters, researchers, journalists, and advocates who need to better understand how Congress works.</p>
+
+<ul>
+    <li><b>Congressional Staff:</b> Congressional aides often have little knowledge of Congress’s past oversight activities on a given issue. A searchable database of letters would strengthen Congress’s institutional memory and help staff to identify allies for future letters.
+
+    <li><b>Federal Agency staff:</b> As they develop regulations or make other important decisions, agencies have a strong interest in understanding the history of Congressional involvement on the issue under discussion.
+
+    <li><b>Voters:</b> In today’s legislative environment, many important issues never come up for a vote. Researching a Member’s letter-writing history on a given issue is often the best way to gauge his/her views and track record.
+
+    <li><b>Journalists and Watchdog Groups:</b> Many Congressional letters involve coordination with outside advocacy groups and lobbyists. Anyone interested in tracing networks of influence in Washington needs ready access to such letters.
+
+    <li><b>Researchers:</b> There is much disagreement about whether, and under what circumstances, such letters are effective in bringing about their desired outcomes. A central, searchable repository would allow researchers to begin studying how such letters actually function within our political system.
+
+    <li><b>Civil Society:</b> Advocacy organizations could use a repository of Congressional correspondence to identify potential champions for their issues.
+</ul>
+</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <body>
     <div class="container">
         <div class="masthead">
             <ul class="nav nav-pills pull-right">
                 <li class="active"><a href="#">Home</a></li>
+                <li><a href="#" data-toggle="modal" data-target="#aboutModal">About</a></li>
                 <li><a href="https://github.com/govlab/legisletters" target="_blank">Source</a></li>
                 <li><a href="https://github.com/govlab/legisletters/issues" target="_blank">Issues</a></li>
             </ul>
-            <h3 class="muted">Legisletters <small>the GovLab @ NYU</small></h3>
+            <h3 class="muted">
+              Legisletters <i>Beta</i><br>
+              <span class="govlab-link"><a href="http://thegovlab.org" target="_blank">the GovLab @ NYU</a></span>
+            </h3>
         </div>
         <hr />
         <div class="facet-view-simple"></div>
