@@ -116,7 +116,7 @@ def process_letter(text, identifier, doc_id): #pylint: disable=too-many-locals
         return parsed
 
     parsed['letterDate'] = find_date(parsed['recipients'])
-    parsed['text'] = re.sub(r'\W+', ' ', html2text(letter_text))
+    parsed['text'] = re.sub(r'\s+', ' ', html2text(letter_text))
 
     try:
         signatures, remainder = re.split(END_SIGNATURES_RE, remainder, maxsplit=1)
@@ -142,7 +142,15 @@ if __name__ == '__main__':
     QUERY_SIZE = 100
     while True:
         DOCS = ES.search(size=QUERY_SIZE, index='legisletters',  # pylint: disable=unexpected-keyword-arg
-                         from_=OFFSET, doc_type=ES_RAW_DOC_TYPE)['hits']['hits']
+                         from_=OFFSET, doc_type=ES_RAW_DOC_TYPE, body={"query": {
+                             "constant_score": {
+                                 "filter": {
+                                     "exists": {
+                                         "field": "html"
+                                     }
+                                 }
+                             }
+                         }})['hits']['hits']
 
         if len(DOCS) == 0:
             break
@@ -168,6 +176,7 @@ if __name__ == '__main__':
                     pass
                 ES.create(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'], body=parsed_letter)
                 LOGGER.info("++OK: %s", doc['_id'])
+
             except Exception as err:  #pylint: disable=broad-except
                 traceback.print_exc(err)
                 LOGGER.error("--ERR: %s (%s)", doc['_id'], err)
