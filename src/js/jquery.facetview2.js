@@ -840,7 +840,7 @@ function getUrlVars() {
         }
         
         // click of the search button
-        function clickSearch() {
+        function clickSearch(event) {
             event.preventDefault();
             var q = $(".facetview_freetext", obj).val();
             options.from = 0;

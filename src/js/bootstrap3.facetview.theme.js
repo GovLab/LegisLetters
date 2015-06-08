@@ -162,7 +162,7 @@ function searchOptions(options) {
     var searchbutton = "";
     if (options.search_button) {
         searchbutton = "<span class='input-group-btn'> \
-                <button class='btn btn-info facetview_force_search'> \
+                <button type='submit' class='btn btn-info facetview_force_search'> \
                     <span class='glyphicon glyphicon-white glyphicon-search'></span> \
                 </button> \
             </span>";

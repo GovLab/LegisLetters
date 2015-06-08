@@ -42,6 +42,16 @@
 
 <p>An automatic web crawler gathers and classifies these letters from legislators' websites.</p>
 
+<p>Because letters often are published in ways that are difficult to automatically read, in particular PDF formats, we have a long-term vision of user participation to improve the quality of Legisletters:</p>
+
+<ul>
+    <li>Engaging the offices of congresspeople to help them publish their documents in open formats.</li>
+
+    <li>Asking users to improve the quality of existing letters by allowing them to classify different sections and fix errors.</li>
+
+    <li>Permitting the addition of letters that have not been automatically discovered, both by link and upload.</li>
+</ul>
+
 <!--[Talk about the bot as our beta approach + long-term vision of making this something people can upload their own / other letters to.]-->
 
 <h4>Who is this for?</h4>
@@ -64,7 +74,7 @@
 </p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -74,17 +84,18 @@
     <div class="container">
         <div class="masthead">
             <ul class="nav nav-pills pull-right">
-                <li class="active"><a href="#">Home</a></li>
+                <li class="active"><a href="/">Home</a></li>
                 <li><a href="#" data-toggle="modal" data-target="#aboutModal">About</a></li>
                 <li><a href="https://github.com/govlab/legisletters" target="_blank">Source</a></li>
                 <li><a href="https://github.com/govlab/legisletters/issues" target="_blank">Issues</a></li>
             </ul>
-            <h3 class="muted">
-              Legisletters <i>Beta</i><br>
+            <h3 class="muted"><a href="/" class="mast-link-home">
+                Legisletters <i>Beta</i></a><br>
               <span class="govlab-link"><a href="http://thegovlab.org" target="_blank">the GovLab @ NYU</a></span>
             </h3>
         </div>
         <hr />
+        <h4 class="col-md-offset-3 col-md-9">Search letters sent by your congresspeople. <a href="#" data-toggle="modal" data-target="#aboutModal"><i>Learn more.</i></a></h4>
         <div class="facet-view-simple"></div>
     </div>
 

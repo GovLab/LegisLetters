@@ -11,18 +11,7 @@ import hashlib
 import urlparse
 
 from bs4 import BeautifulSoup
-from legisletters.constants import REQUEST_HEADERS, LEGISLATORS_BY_URL
-
-
-def fetch_page(url, session=None):
-    '''
-    get page with requests, return full response (text & headers accessible as
-    properties.)
-    '''
-    if not session:
-        return requests.get(url, headers=REQUEST_HEADERS)
-    else:
-        return session.get(url, headers=REQUEST_HEADERS)
+from legisletters.constants import LEGISLATORS_BY_URL
 
 
 def get_logger(name):

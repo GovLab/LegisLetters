@@ -2,9 +2,10 @@
   "settings": {
     "analysis": {
       "analyzer": {
-        "letters_text6": {
+        "letters_text9": {
           "tokenizer": "standard",
-          "filter": ["letters_lowercase2", "letters_stopwords", "letters_text_shingle"]
+          "filter": ["letters_lowercase2", "letters_stopwords",
+            "letters_govt_stopwords", "letters_text_big_shingle"]
         }
       },
       "filter": {
@@ -18,13 +19,21 @@
           "query_mode": true
         },
         "letters_stopwords": {
-          "type": "stop"
+          "type": "stop",
+          "stopwords": "_english_"
         },
-        "letters_text_shingle": {
+        "letters_govt_stopwords": {
+          "type": "stop",
+          "stopwords": ["you", "your", "our", "we", "urge", "thank", "forward",
+            "ensure", "look", "have", "more", "than", "write", "support",
+            "from", "according", "been"
+          ]
+        },
+        "letters_text_big_shingle": {
           "type": "shingle",
           "output_unigrams": false,
-          "min_shingle_size": 2,
-          "max_shingle_size": 5
+          "min_shingle_size": 3,
+          "max_shingle_size": 6
         }
       }
     }

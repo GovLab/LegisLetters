@@ -28,8 +28,7 @@
           "id": {
             "properties": {
               "bioguide": {
-                "type": "string",
-                "index": "not_analyzed"
+                "type": "string"
               },
               "thomas": {
                 "type": "string",
@@ -97,7 +96,12 @@
               },
               "official_full": {
                 "type": "string",
-                "index": "not_analyzed"
+                "fields": {
+                  "raw": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                  }
+                }
               }
             }
           },
@@ -184,7 +188,13 @@
         }
       },
       "text" : {
-        "type" : "string"
+        "type" : "string",
+        "fields": {
+          "analyzed": {
+            "type": "string",
+            "analyzer": "letters_text9"
+          }
+        }
       },
       "url" : {
         "type" : "string"

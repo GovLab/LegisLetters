@@ -3,11 +3,12 @@
 $(window).load(function () {
   $('.facet-view-simple').facetview({
     search_url: '/elasticsearch/legisletters/letter/_search',
+    //initialsearch: false,
     datatype: 'json',
     search_button: true,
+    sharesave_link: false,
     /*fields: ['text', 'letterDate', 'url', 'signatures', 'recipients',
-      'hostLegislator.', 'pressDate', 'pdfs'],*/
-    result_display: [ [ {
+      'hostLegislator.', 'pressDate', 'pdfs'],*/ result_display: [ [ {
         "field": "text"
     } ] ],
     results_render_callbacks: {
@@ -75,12 +76,10 @@ $(window).load(function () {
       field: 'hostLegislator.name.official_full',
       display: 'Legislator'
     }],
-    searchbox_fieldselect: [
-   //   {
-   //   field: 'hostLegislator',
-   //   display: 'Legislator'
-   // },
-    {
+    searchbox_fieldselect: [{
+      field: 'hostLegislator.name.official_full',
+      display: 'Legislator'
+    }, {
       field: 'text',
       display: 'Letter Text'
     }],
@@ -98,12 +97,11 @@ $(window).load(function () {
     {field: 'hostLegislator.term.party',
      open: true,
      display: 'Party'},
-    {field: 'hostLegislator.name.official_full',
+    {field: 'hostLegislator.name.official_full.raw',
      open: true,
      display: 'Legislator'},
     {field: 'hostLegislator.term.state', size: 50, display: 'State'},
-    {field: 'text',
-     exclude: ["the","to","and","of","in","a","that","for","this","you","is","with","as","on","are","we","have","by","your","be","has","from","it","an","these","not","our","sincerely","will","or","at","their","would","more","which","other","its","all","if","been","also","ensure","provide","any","urge","than","while","should","thank","can","they","such","was","about","including","but","new","work","who","many","write","one","united","know","so","were","year","over","may","important","under","no","time","only","department","act","look","there","regarding","make","well","s"],
+    {field: 'text.analyzed',
      display: 'Text'}
     /*, {field: 'letterDate',
      type: 'date_histogram',
