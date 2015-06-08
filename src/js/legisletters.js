@@ -1,5 +1,5 @@
 /*jshint browser:true, camelcase: false*/
-/*globals $, moment*/
+/*globals $, moment, ga, postSearch: true, JSON*/
 $(window).load(function () {
   $('.facet-view-simple').facetview({
     search_url: '/elasticsearch/legisletters/letter/_search',
@@ -23,6 +23,7 @@ $(window).load(function () {
             imgSrc = 'http://bioguide.congress.gov/bioguide/photo/' + bioguide.substr(0, 1) + '/' + bioguide + '.jpg',
             section,
             text,
+            self = this,
             link;
         $link.attr('href', record.url);
         $link.text('(See original)');
@@ -60,8 +61,13 @@ $(window).load(function () {
         //}
 
         $imgPanel.append($('<a />').attr({
+          //href: "#"
           href: legislator.term.url,
           target: '_blank'
+        //}).on('click', function (evt) {
+        //  // TODO break this out.  Filter by this legislator.
+        //  evt.preventDefault();
+        //  debugger;
         }).append($('<img />').attr('src', imgSrc)));
         $imgPanel.append(
             $('<div>' + legislatorName + ' (' + description + ')</div>'));
@@ -101,8 +107,8 @@ $(window).load(function () {
      open: true,
      display: 'Legislator'},
     {field: 'hostLegislator.term.state', size: 50, display: 'State'},
-    {field: 'text.analyzed',
-     display: 'Text'}
+    /*{field: 'text.analyzed',
+     display: 'Text'}*/
     /*, {field: 'letterDate',
      type: 'date_histogram',
      sort: 'desc',
@@ -116,6 +122,19 @@ $(window).load(function () {
     ]
   });
 });
+
+/**
+ * Keep track of searches in GA
+ */
+function postSearch(options, context) {
+  try {
+    ga('send', 'search', 'q', options.q);
+    ga('send', 'search', 'active_filters',
+       JSON.stringify(options.active_filters));
+    ga('send', 'search', 'searchfield', options.searchfield);
+    ga('send', 'search', 'sort', JSON.stringify(options.sort));
+  } catch (err) { }
+}
 
       //{'field': 'text', 'exclude': ["the","to","and","of","in","a","that","for","this","you","is","with","as","on","are","we","have","by","your","be","has","from","it","an","these","not","our","sincerely","will","or","at","their","would","more","which","other","its","all","if","been","also","ensure","provide","any","urge","than","while","should","thank","can","they","such","was","about","including","but","new","work","who","many","write","one","united","know","so","were","year","over","may","important","under","no","time","only","department","act","look","there","regarding","make","well","some","years","could","those","efforts","use","must","ask","into","when","do","1","i","issue","address","continue","believe","since","matter","how","further","what","process","attention","through","take","critical","significant","made","working","country","both","states","forward","support","request","u.s","state","federal","recent","congress","government","american","information","law","public","national","administration","writing","against","help","given","need","additional","during","long","current","however","most","concerns","without","response","consideration","future","them","out","two","does","policy","last","action","between","protect","us","first","because","whether","million","across","services","used","number","appreciate","already","understand","before","had","full","people","service","order","concerned","recently","now","issues","concern","being","report","following","strong","consider","addition","up","like","impact","within","2","3","4","5","6","7","8","9","even","possible","office","system","part","clear","after","review","percent","necessary","program","please","based","several","americans","actions","serious","questions","plan","officials","families","committee","fully","end","according","proposed","three"]},
 //function renderResultRecord(options, record) {

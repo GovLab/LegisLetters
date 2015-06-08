@@ -1463,13 +1463,14 @@ function getUrlVars() {
                 uiFromOptions(options);
                 
                 // bind the search control triggers
+                $('.facetview_form', obj).bind("submit", clickSearch);
                 $(".facetview_startagain", obj).bind("click", clickStartAgain);
                 $('.facetview_pagesize', obj).bind('click', clickPageSize);
                 $('.facetview_order', obj).bind('click', clickOrder);
                 $('.facetview_orderby', obj).bind('change', changeOrderBy);
                 $('.facetview_searchfield', obj).bind('change', changeSearchField);
                 $('.facetview_sharesave', obj).bind('click', clickShareSave);
-                $('.facetview_freetext', obj).bindWithDelay('keyup', keyupSearchText, options.freetext_submit_delay);
+                //$('.facetview_freetext', obj).bindWithDelay('keyup', keyupSearchText, options.freetext_submit_delay);
                 $('.facetview_force_search', obj).bind('click', clickSearch);
                 $('.facetview_shorten_url', obj).bind('click', clickShortenUrl);
                 $('.facetview_lengthen_url', obj).bind('click', clickLengthenUrl);

@@ -111,16 +111,16 @@ function searchOptions(options) {
 
     var sortbutton = "";
     if (options.search_sortby.length > 0) {
-        sortbutton = '<button type="submit" class="btn btn-default facetview_order" title="Current order descending. Click to change to ascending" href="desc"> \
+        sortbutton = '<button type="button" class="btn btn-default facetview_order" title="Current order descending. Click to change to ascending" href="desc"> \
                 <span class="glyphicon glyphicon-arrow-down"></span> \
             </button>';
     }
 
     var buttons = '<span class="input-group-btn"> \
-            <button type="submit" class="btn btn-default facetview_startagain" title="Clear all search settings and start again" href=""> \
+            <button type="button" class="btn btn-default facetview_startagain" title="Clear all search settings and start again" href=""> \
                 <span class="glyphicon glyphicon-remove"></span> \
             </button> \
-            <button type="submit" class="btn btn-default facetview_pagesize" title="Change result set size" href="#">10</button>' + sortbutton +  ' \
+            <button type="button" class="btn btn-default facetview_pagesize" title="Change result set size" href="#">10</button>' + sortbutton +  ' \
         </span>';
 
     var sortby = "";
@@ -150,7 +150,7 @@ function searchOptions(options) {
     if (options.searchbox_fieldselect.length > 0) {
         searchfields = '<div class="form-group"> \
                 <select class="facetview_searchfield form-control"> \
-                    <option value="">Search all</option>';
+                    <option value="">search by ... all</option>';
 
         for (var each = 0; each < options.searchbox_fieldselect.length; each++) {
             var obj = options.searchbox_fieldselect[each];
@@ -173,7 +173,7 @@ function searchOptions(options) {
                 <input type="text" class="facetview_freetext form-control" name="q" value="" placeholder="Enter search" />';
     searchbox += searchbutton + "</div></div>";
 
-    var searchOptions = '<form class="form-inline">' + sharesave + controls_left + searchfields + searchbox + "</form>";
+    var searchOptions = '<form class="form-inline facetview_form">' + sharesave + controls_left + searchfields + searchbox + "</form>";
 
     // share and save link
     var sharebox = "";
