@@ -1,0 +1,1 @@
+0 0 * * * docker exec legisletters python /legisletters/scrape.py && docker exec legisletters python /legisletters/parser.py
