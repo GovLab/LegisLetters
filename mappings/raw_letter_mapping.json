@@ -2,20 +2,25 @@
   "raw_letter" : {
     "properties" : {
       "html" : {
-        "type" : "string"
+        "type" : "string",
+        "index": "not_analyzed"
       },
       "pdf": {
-        "type": "attachment"
+        "type": "attachment",
+        "index": "not_analyzed"
       },
       "url" : {
-        "type" : "string"
+        "type" : "string",
+        "index": "not_analyzed"
       },
       "identifier" : {
-        "type" : "string"
+        "type" : "string",
+        "index": "not_analyzed"
       },
       "scrapeTime" : {
         "type" : "date",
-        "format" : "dateOptionalTime"
+        "format" : "dateOptionalTime",
+        "index": "not_analyzed"
       }
     }
   }

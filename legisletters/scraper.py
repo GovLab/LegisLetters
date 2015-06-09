@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 
 from legisletters.constants import (ES_INDEX_NAME, ES_RAW_DOC_TYPE, UA_STRINGS,
                                     LETTER_IDENTIFIERS, LEGISLATORS_BY_URL)
-from legisletters.utils import get_logger, get_document_id, get_index
+from legisletters.utils import (get_logger, get_index)
 
 LOGGER = get_logger(__name__)
 SESSIONS = []
@@ -223,6 +223,7 @@ def extract_text_from_letter(full_page):
                   len(enclosing_el.get_text()) < 100:
                 enclosing_el = enclosing_el.parent
 
+            strip_script_from_soup(enclosing_el)
             return unicode(enclosing_el.parent)
 
     raise Exception("Cannot identify letter in text")
@@ -233,41 +234,26 @@ def download_url(term, url, elastic):
     Download raw content for URL
     '''
     resp = random.choice(SESSIONS).get(url)
+    scrape_time = datetime.datetime.now()
     if 'html' in resp.headers['content-type']:
         original_html = extract_text_from_letter(resp.text)
-
-        scrape_time = datetime.datetime.now()
-
-        doc_id = get_document_id(url, original_html.encode('utf8'))
-
-        elastic.index(index=ES_INDEX_NAME,
-                      doc_type=ES_RAW_DOC_TYPE,
-                      id=doc_id,
-                      body={
-                          'url': url,
-                          'html': original_html,
-                          'identifier': term,
-                          'scrapeTime': scrape_time
-                      })
+        add_raw_doc_if_not_exists({
+            'url': url,
+            'html': original_html,
+            'identifier': term,
+            'scrapeTime': scrape_time
+        })
     elif 'pdf' in resp.headers['content-type']:
         encoded = base64.encodestring(resp.content)
-        doc_id = get_document_id(url, encoded)
-
-        scrape_time = datetime.datetime.now()
-
-        elastic.index(index=ES_INDEX_NAME,
-                      doc_type=ES_RAW_DOC_TYPE,
-                      id=doc_id,
-                      body={
-                          'url': url,
-                          'pdf': {
-                              '_content': encoded,
-                              '_language': 'en',
-                              '_content_type': 'application/pdf'
-                          },
-                          'scrapeTime': scrape_time
-                      })
-
+        add_raw_doc_if_not_exists({
+            'url': url,
+            'pdf': {
+                '_content': encoded,
+                '_language': 'en',
+                '_content_type': 'application/pdf'
+            },
+            'scrapeTime': scrape_time
+        })
     else:
         raise Exception("Not PDF or HTML (content type {})".format(
             resp.headers['content-type']))
@@ -283,6 +269,8 @@ if __name__ == '__main__':
     for site_ in LEGISLATORS_BY_URL.keys():
         try:
             for t, u in scrape_legislator(site_, LETTER_IDENTIFIERS):
+                if 'searchresults' in u.lower():  # skip search pages
+                    continue
                 download_url(t, u, ES)
                 LOGGER.info("++OK: %s", u)
         except Exception as err:  #pylint: disable=broad-except
@@ -293,6 +281,8 @@ if __name__ == '__main__':
                 #    '"{}"'.format(letter_identifier), site_, int(10*i))
                 #for u in urls:
                 #    try:
+                #        if 'searchresults' in u.lower():  # skip search pages
+                #            continue
                 #        download_url(u, ES)
                 #        LOGGER.info("++OK: %s", u)
                 #    except Exception as err:  #pylint: disable=broad-except

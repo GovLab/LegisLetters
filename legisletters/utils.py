@@ -6,12 +6,11 @@ import time
 import logging
 import elasticsearch
 import sys
-import requests
-import hashlib
 import urlparse
+import traceback
 
 from bs4 import BeautifulSoup
-from legisletters.constants import LEGISLATORS_BY_URL
+from legisletters.constants import LEGISLATORS_BY_URL, ES_INDEX_NAME, ES_RAW_DOC_TYPE
 
 
 def get_logger(name):
@@ -41,16 +40,6 @@ def get_index(index_name, logger=None):
                 logger.info('waiting for elasticsearch')
             time.sleep(1)
     return elastic
-
-
-def get_document_id(url, full_doc_html):
-    '''
-    Construct a document ID based off of the URL and full document html,
-    including the press release.
-
-    Concatenates the URL and a SHA1 hash of the HTML of the current text.
-    '''
-    return u'{}#{}'.format(url, hashlib.sha1(full_doc_html).hexdigest())
 
 
 def html2text(html):
@@ -89,3 +78,48 @@ def get_legislator_from_url(url, date):
         'id': legislator['id'],
         'term': term
     }
+
+
+def strip_script_from_soup(element):
+    '''
+    Remove script tags from an element.  Modifies in-place.
+    '''
+    for script in element.findAll('script'):
+        script.extract()
+
+
+def add_raw_doc(elastic, body, logger, exists_behavior='warn'):
+    '''
+    Add a raw doc, but only if it hasn't been added yet.
+    '''
+    url = body['url']
+    same_url_docs = elastic.search(index=ES_INDEX_NAME, doc_type=ES_RAW_DOC_TYPE, body={
+        "query": {
+            "query_string": {
+                "query": '"' + url + '"',
+                "default_field": "url"
+            }
+        }
+    })['hits']['hits']
+
+    if len(same_url_docs) > 0:
+        if exists_behavior == 'warn':
+            logger.warn('Doc already exists with URL %s, skipping', url)
+            return
+        elif exists_behavior == 'pdb':
+            import pdb
+            pdb.set_trace()
+            return
+        elif exists_behavior == 'raise':
+            raise Exception('Doc already exists with URL {}, skipping'.format(url))
+        elif exists_behavior == 'replace':
+            for doc in same_url_docs:
+                logger.info('deleting %s for %s (add_raw_doc:replace)', doc['_id'], url)
+                try:
+                    elastic.delete(index=ES_INDEX_NAME, doc_type=ES_RAW_DOC_TYPE,
+                                   id=doc['_id'])
+                except: #pylint: disable=bare-except
+                    logger.warn(traceback.format_exc())
+
+    logger.info('adding raw doc for %s', url)
+    elastic.index(index=ES_INDEX_NAME, doc_type=ES_RAW_DOC_TYPE, body=body)
