@@ -26,23 +26,23 @@ def find_date(text):
     '''
     Find a date in a goop of text.
     '''
-    for line in text.split('\n'):
-        line = line.strip()
-        words = NON_LETTERS.split(line)
-        for i in xrange(0, 4):
-            if len(words[i:i+4]) < 3:
-                break
-            try:
-                try:  # resolve issue with Tuesday, August 26 resolving to this year
-                    four_words = ' '.join(words[i:i+4]).strip()
-                    if four_words:
-                        return parser.parse(four_words)
-                except ValueError:
-                    three_words = ' '.join(words[i:i+3]).strip()
-                    if three_words:
-                        return parser.parse(three_words)
+    #for line in text.split('\n'):
+    #    line = line.strip()
+    words = NON_LETTERS.split(text)
+    for i in xrange(0, 4):
+        if len(words[i:i+4]) < 3:
+            break
+        try:
+            try:  # resolve issue with Tuesday, August 26 resolving to this year
+                four_words = ' '.join(words[i:i+4]).strip()
+                if four_words:
+                    return parser.parse(four_words)
             except ValueError:
-                pass
+                three_words = ' '.join(words[i:i+3]).strip()
+                if three_words:
+                    return parser.parse(three_words)
+        except ValueError:
+            pass
         #import pdb
         #pdb.set_trace()
 
