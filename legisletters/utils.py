@@ -123,3 +123,17 @@ def add_raw_doc(elastic, body, logger, exists_behavior='warn'):
 
     logger.info('adding raw doc for %s', url)
     elastic.index(index=ES_INDEX_NAME, doc_type=ES_RAW_DOC_TYPE, body=body)
+
+
+def have_raw_url(elastic, url):
+    '''
+    True if we already have this URL in the raw database, False otherwise.
+    '''
+    return len(elastic.search(index=ES_INDEX_NAME, doc_type=ES_RAW_DOC_TYPE, body={
+        "query": {
+            "query_string": {
+                "query": '"' + url + '"',
+                "default_field": "url"
+            }
+        }
+    })['hits']['hits']) > 0

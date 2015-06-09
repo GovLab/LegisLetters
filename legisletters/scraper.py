@@ -11,12 +11,13 @@ import base64
 import random
 import urlparse
 import time
-import urllib
+
 from bs4 import BeautifulSoup
 
 from legisletters.constants import (ES_INDEX_NAME, ES_RAW_DOC_TYPE, UA_STRINGS,
                                     LETTER_IDENTIFIERS, LEGISLATORS_BY_URL)
-from legisletters.utils import (get_logger, get_index)
+from legisletters.utils import (get_logger, get_index, strip_script_from_soup,
+                                add_raw_doc, have_raw_url)
 
 LOGGER = get_logger(__name__)
 SESSIONS = []
@@ -168,28 +169,27 @@ def scrape_legislator(netloc, terms): #pylint: disable=too-many-locals,too-many-
             prior_links = links
 
 
-def scrape_google(query, site, start=0):
-    '''
-    Scrape a query from google for a specific site.
-
-    Returns a list of results and a bool of whether this is the last page.
-    '''
-    entity = urllib.quote(query)
-    site_restrict = urllib.quote('site:%s' % site)
-    url = "https://www.google.com/search?q=%s+%s&start=%d" % (entity, site_restrict, start)
-    LOGGER.info("Processing %s", url)
-    results = []
-    response = random.choice(SESSIONS).get(url)
-    if 'Our systems have detected unusual traffic from your computer network.' in response.text:
-        LOGGER.warn("Rate-limited by Google, doing something else")
-        return [], False
-    if "No results found for" in response.text:
-        return results, True
-    soup = BeautifulSoup(response.text)
-    results.extend([
-        process_url_from_google(t.a['href']) for t in soup.findAll('h3', attrs={'class': 'r'})])
-    is_last_page_ = 'Next</span' not in response.text
-    return results, is_last_page_
+#def scrape_google(query, site, start=0):
+#    '''
+#    Scrape a query from google for a specific site.
+#
+#    Returns a list of results and a bool of whether this is the last page.
+#    '''
+#    entity = urllib.quote(query)
+#    site_restrict = urllib.quote('site:%s' % site)
+#    url = "https://www.google.com/search?q=%s+%s&start=%d" % (entity, site_restrict, start)
+#    LOGGER.info("Processing %s", url)
+#    results = []
+#    response = random.choice(SESSIONS).get(url)
+#    if 'Our systems have detected unusual traffic from your computer network.' in response.text:
+#        LOGGER.warn("Rate-limited by Google, doing something else")
+#        return [], False
+#    if "No results found for" in response.text:
+#        return results, True
+#    soup = BeautifulSoup(response.text)
+#    results.extend(e(t.a['href']) for t in soup.findAll('h3', attrs={'class': 'r'})])
+#    is_last_page_ = 'Next</span' not in response.text
+#    return results, is_last_page_
 
 
 #def process_url_from_google(url):
@@ -237,15 +237,15 @@ def download_url(term, url, elastic):
     scrape_time = datetime.datetime.now()
     if 'html' in resp.headers['content-type']:
         original_html = extract_text_from_letter(resp.text)
-        add_raw_doc_if_not_exists({
+        add_raw_doc(elastic, {
             'url': url,
             'html': original_html,
             'identifier': term,
             'scrapeTime': scrape_time
-        })
+        }, LOGGER)
     elif 'pdf' in resp.headers['content-type']:
         encoded = base64.encodestring(resp.content)
-        add_raw_doc_if_not_exists({
+        add_raw_doc(elastic, {
             'url': url,
             'pdf': {
                 '_content': encoded,
@@ -253,7 +253,7 @@ def download_url(term, url, elastic):
                 '_content_type': 'application/pdf'
             },
             'scrapeTime': scrape_time
-        })
+        }, LOGGER)
     else:
         raise Exception("Not PDF or HTML (content type {})".format(
             resp.headers['content-type']))
@@ -271,7 +271,10 @@ if __name__ == '__main__':
             for t, u in scrape_legislator(site_, LETTER_IDENTIFIERS):
                 if 'searchresults' in u.lower():  # skip search pages
                     continue
-                download_url(t, u, ES)
+                if have_raw_url(ES, u):
+                    LOGGER.info("Already downloaded %s", u)
+                else:
+                    download_url(t, u, ES)
                 LOGGER.info("++OK: %s", u)
         except Exception as err:  #pylint: disable=broad-except
             traceback.print_exc(err)
