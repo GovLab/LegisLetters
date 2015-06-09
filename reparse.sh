@@ -1,6 +1,4 @@
 #!/bin/bash
 
-source .env/bin/activate
-export PYTHONPATH=$PWD
-./update_settings.sh
-python legisletters/parser.py
+docker exec legisletters /scripts/update_settings.sh
+docker exec legisletters python /legisletters/parser.py

@@ -278,7 +278,7 @@ if __name__ == '__main__':
     #SESSION.get('https://www.google.com/foo')  # get some cookies in the session
     ES = get_index(ES_INDEX_NAME, LOGGER)
     ES.indices.put_mapping(index=ES_INDEX_NAME, doc_type=ES_RAW_DOC_TYPE,
-                           body=json.load(open('legisletters/raw_letter_mapping.json', 'r')))
+                           body=json.load(open('mappings/raw_letter_mapping.json', 'r')))
 
     for site_ in LEGISLATORS_BY_URL.keys():
         try:
