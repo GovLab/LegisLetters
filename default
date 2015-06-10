@@ -24,6 +24,10 @@ server {
 		# include /etc/nginx/naxsi.rules
 	}
 
+	if ($request_method != 'GET') {
+		return 405;
+	}
+
 	location /elasticsearch {
 		client_max_body_size 50m;
 
