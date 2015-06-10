@@ -130,11 +130,14 @@ def process_letter(text, identifier, doc_id): #pylint: disable=too-many-locals
 
 if __name__ == '__main__':
 
+    DESTRUCTIVE = False
+
     ES = get_index(ES_INDEX_NAME, LOGGER)
-    try:
-        ES.indices.delete_mapping(index=ES_INDEX_NAME, doc_type=ES_LETTER_DOC_TYPE)
-    except elasticsearch.exceptions.NotFoundError:
-        pass
+    if DESTRUCTIVE == True:
+        try:
+            ES.indices.delete_mapping(index=ES_INDEX_NAME, doc_type=ES_LETTER_DOC_TYPE)
+        except elasticsearch.exceptions.NotFoundError:
+            pass
     ES.indices.put_mapping(index=ES_INDEX_NAME, doc_type=ES_LETTER_DOC_TYPE,
                            body=json.load(open('mappings/letter_mapping.json', 'r')))
 
@@ -170,10 +173,13 @@ if __name__ == '__main__':
                 date = parsed_letter.get('letterDate', parsed_letter.get('pressDate'))
                 parsed_letter['hostLegislator'] = get_legislator_from_url(url_, date)
 
-                try:
-                    ES.delete(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'])
-                except elasticsearch.NotFoundError:
-                    pass
+                if ES.exists(doc['_index'], doc_type=ES_LETTER_DOC_TYPE, id=doc['_id']):
+                    if DESTRUCTIVE:
+                        ES.delete(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'])
+                    else:
+                        LOGGER.info("++EXISTS: %s", doc['_id'])
+                        continue
+
                 ES.create(doc['_index'], ES_LETTER_DOC_TYPE, id=doc['_id'], body=parsed_letter)
                 LOGGER.info("++OK: %s", doc['_id'])
 
