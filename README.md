@@ -17,7 +17,7 @@ You will then be able to run all relevant scripts
 Inside the docker container, this will add documents to the Elasticsearch
 database:
 
-    python legisletters/scrapers.py
+    python legisletters/scraper.py
 
 This will try to parse them into separate fields:
 
